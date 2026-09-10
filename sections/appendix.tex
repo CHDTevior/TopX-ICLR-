@@ -775,13 +775,6 @@ validation loss. Validation holds \num{3{,}899} clips over \num{311} rigs and tr
 59 clips do not fill a pool and are excluded from the R-precision but not from the FID or the
 matching score.
 
-\paragraph{Shared source animations.} The annotation set exports one source animation several times,
-so a motion can appear under more than one clip; inside a retrieval pool the acceptance sets group those
-exports by their caption text, which the exports share. On the \num{512} validation clips over
-\num{216} rigs whose motion payload and \texttt{(rig, source animation)} pair appear nowhere in
-training, the \num{303}M model reaches R@1 \num{0.967} against \num{0.937} on the full validation set
-at the same pool size of 32, with the real clips at \num{0.988} and \num{0.975}.
-
 \paragraph{Pool size.} Retrieval among more candidates is harder for the real clips and for the
 generated ones alike, and the pool size is a free parameter of the protocol. Table~\ref{tab:pool}
 re-scores the same generated samples at four pool sizes; the ranking of the two models does not depend on
