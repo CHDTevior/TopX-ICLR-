@@ -488,33 +488,49 @@ percentile interval need not contain the population value.
 
 \section{Ablation notes}\label{app:ablation_notes}
 
-\paragraph{What the skeleton conditioning and the calibration are worth together.}
-Table~\ref{tab:simple} trains a \num{36}M pilot that keeps the representation, the in-context rest-pose
-demonstration and the per-cell statistics --- so it still knows which rig it is driving --- and loses
-everything this paper adds on top: the joint descriptions are zeroed and frozen, the geodesic and
-direction attention biases are switched off, the structural features are dropped, and the grouped
-objective runs at uniform weights. Corpus, model size, batch, learning rate, schedule and budget are the
-pilot's (\num{36.1}M parameters against \num{36.3}M; the difference is the removed pathways). It is
-behind by \num{0.067}--\num{0.072} of R@1 at every matched epoch and its FID is a little over twice the
-pilot's, and where the full recipe is still improving between epochs 50 and 100 this one has flattened.
+\paragraph{What each ingredient is worth.} Table~\ref{tab:simple} prices them one at a time. Every arm is a
+\num{36}M pilot on the same clips with the same cut, split, captions, rest-pose demonstration, batch, learning
+rate, schedule and budget, read at the same three epochs under the frozen protocol.
+
+The arm \emph{without the joint descriptions} zeroes and freezes the description projection and keeps
+everything else. It is level with the full recipe at all three epochs (\num{+0.004}, \num{+0.001},
+\num{+0.001} of R@1) and its FID is \num{10}--\num{16}\% lower.
+
+The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
+at uniform weights. It loses \num{0.036}--\num{0.045} of R@1 and its FID rises by \num{50}--\num{60}\%, and
+it gains less between epochs 50 and 100 than the full recipe does.
+
+The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
+direction biases off, structural features dropped, uniform weights --- loses \num{0.067}--\num{0.072}. Against
+the two arms above, the remaining \num{0.028}--\num{0.035} is what the geodesic and direction biases and the
+structural features carry.
+
+The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
+objective, weights, schedule and budget, with the joint axis flattened into one token per frame. It loses
+\num{0.198}--\num{0.208} of R@1 and its FID is \num{3.7} times the full recipe's, and it is \num{0.126}
+below the arm that keeps per-joint tokens with every skeleton pathway switched off.
 
 \begin{table}[h]
 \centering\small
-\caption{The skeleton conditioning and the calibrated objective, removed together. Both arms are
-\num{36}M pilots on the same clips with the same batch, learning rate, schedule and sampler; the
-simplified arm zeroes the joint descriptions, removes the geodesic and direction biases and the
-structural features, and fixes every group weight at one. Frozen protocol, pools of 64; the simplified arm was
-sampled with TF32 matrix multiplication and the full recipe in fp32, which App.~\ref{app:controls} measures at
-\num{0.0003} of R@1.}\label{tab:simple}
-\begin{tabular}{@{}lcccc@{}}
+\caption{One ingredient at a time, on the \num{36}M pilot. Same clips, cut, split, captions, rest-pose
+demonstration, batch, learning rate, schedule and budget in every row; frozen protocol, pools of 64, 20 Euler
+steps, guidance 2, seed 42. The full recipe was sampled in fp32 and the other four with TF32 matrix
+multiplication, which App.~\ref{app:controls} measures at \num{0.0003} of R@1. The last row is the adapted
+baseline of App.~\ref{app:flat}, which carries \num{5}\% more parameters than the full
+recipe.}\label{tab:simple}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-& \multicolumn{2}{c}{Simplified} & \multicolumn{2}{c}{Full recipe} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-Epoch & R@1$\uparrow$ & FID$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
+& & \multicolumn{3}{c}{R@1$\uparrow$ at epoch} & FID$\downarrow$ \\
+\cmidrule(lr){3-5}
+Arm & Params & 50 & 75 & 100 & at 100 \\
 \midrule
-50  & \num{0.785} & \num{0.0347} & \num{0.852} & \num{0.0157} \\
-75  & \num{0.784} & \num{0.0330} & \num{0.860} & \num{0.0146} \\
-100 & \num{0.792} & \num{0.0309} & \num{0.864} & \num{0.0138} \\
+\rep{} (full recipe)                          & \num{36.3}M & \num{0.852} & \num{0.860} & \num{0.864} & \num{0.0138} \\
+\quad without the joint descriptions          & \num{36.3}M & \num{0.856} & \num{0.861} & \num{0.865} & \num{0.0124} \\
+\quad without the calibrated weights          & \num{36.3}M & \num{0.813} & \num{0.815} & \num{0.828} & \num{0.0222} \\
+\quad without both, and without the graph     & \num{36.1}M & \num{0.785} & \num{0.784} & \num{0.792} & \num{0.0309} \\
+\midrule
+Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.645} & \num{0.651} & \num{0.666} & \num{0.0515} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -717,6 +733,37 @@ one such run showed the first block's temporal attention already saturated on th
 \num{12392}--\num{23391} across the damaging step. With
 query--key normalisation the same recipe trained for 290 epochs without a single rejected step.
 
+
+\section{A flat, padded-joint baseline}\label{app:flat}
+
+Fixed-skeleton text-to-motion generators are brought to variable skeletons by making the tensor shape uniform.
+\citet{gat2025anytop} concatenate all joint features of a character and pad them to a length of $J\times D$, put
+the vectorised rest pose on the temporal axis as frame 0, and use the skeleton's name as the text. SAMoR
+concatenates all per-joint features into a single flat per-frame vector of dimension $J_{\max}\times 6$,
+zero-padded to \num{96} joints with padded positions masked in attention, and trains its baselines on the same
+corpus with the same splits, loss functions and budget. OmniZoo extends MoMask and MMM with joint padding and
+binary masking and appends species tags to the text prompts, on the same 95/5 split.
+
+We build that construction on our corpus. One token per \emph{frame} carries every joint's channels, zero-padded
+to \num{102} (the library's largest rig) and masked by the batch's joint-validity flags; frames attend to frames;
+the caption modulates every block through AdaLN. It reads the same per-cell normalised clips, the same cut and
+split, the same captions --- which name the species, so no tag is appended --- the rig's rest pose as frame 0,
+and the same channel-validity masks, the fixed-DOF rotation rows and the statistically constant cells among
+them. It optimises the same flow-matching objective at the same group weights, on the same batch, learning rate,
+schedule and budget, and is read under the same frozen protocol. Width and heads are the pilot's and the depth
+is \num{12} rather than \num{8}, which gives it \num{38{,}020{,}934} parameters against the pilot's
+\num{36{,}276{,}177}.
+
+What it does not have is the joint axis and what lives on it: per-joint tokens, the natural-language joint
+descriptions, the learned joint-slot embedding, the geodesic attention bias, the directional bias and the
+structural joint features. Table~\ref{tab:simple} reads it at the same three epochs. It reaches R@1
+\num{0.645}, \num{0.651} and \num{0.666} against the pilot's \num{0.852}, \num{0.860} and \num{0.864}, with FID
+\num{0.0515} against \num{0.0138}; the three epochs rise monotonically. The arm above it in that table keeps
+per-joint tokens and switches every skeleton pathway off, and sits \num{0.126} higher.
+
+This is that flattening-and-padding construction on our data and objective, not an implementation of MDM,
+T2M-GPT, MoMask or MMM. Its group weights are the control's, measured on the control's model; the gradient-share
+and acceleration diagnostics of that calibration describe that model and not this one.
 
 \section{Additional qualitative results}\label{app:qual}
 

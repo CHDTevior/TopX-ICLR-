@@ -142,7 +142,9 @@ the text-conditioned animal generators are built around one fixed skeleton. \met
 world-space root trajectory the rig plays as generated, and measures that geometry against ground truth for the
 pilot and the main model alike (Table~\ref{tab:physical}: at \num{303}M the FK--pose gap is \num{0.24} bone
 lengths, the foot slide \num{1.84} against a real \num{2.03}). Table~\ref{tab:capability} adds the systems whose
-code is not public.
+code is not public. The construction those systems reach a second skeleton with --- every joint padded into one
+flat per-frame vector --- is trained on our corpus at our budget in App.~\ref{app:flat} and read beside the
+ablations in Table~\ref{tab:simple}.
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
@@ -169,8 +171,13 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 The ablations share the pilot's recipe and checkpoint epoch; App.~\ref{app:ablation_notes} collects them
-with the notes. Stripping the skeleton conditioning and the calibration together costs
-\num{0.067}--\num{0.072} of R@1 and roughly doubles the FID (Table~\ref{tab:simple}); the acceleration-matching
+with the notes. Flattening the joint axis into one token per frame --- the construction that carries a
+fixed-skeleton generator to variable skeletons --- costs \num{0.198}--\num{0.208} of R@1 and multiplies the FID
+by \num{3.7}, with the corpus, split, captions, rest pose, objective, weights, schedule and budget matched and
+\num{5}\% more parameters on the flat side (Table~\ref{tab:simple}, App.~\ref{app:flat}). Keeping the joint
+axis and removing what this paper puts on it costs \num{0.067}--\num{0.072}, of which the calibrated group
+weights carry \num{0.036}--\num{0.045}, the geodesic and direction biases and the structural features
+\num{0.028}--\num{0.035}, and the joint descriptions none. The acceleration-matching
 term changes nothing (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched
 epoch (Table~\ref{tab:rep}). Its channel layout is worth under a point of R@1 against the 13-channel AnyTop
 layout derived from the same clips (Table~\ref{tab:repcontent}), and \num{0.007} once that arm's own objective
