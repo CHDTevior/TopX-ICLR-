@@ -786,11 +786,11 @@ and acceleration diagnostics of that calibration describe that model and not thi
 \section{Additional qualitative results}\label{app:qual}
 
 Figure~\ref{fig:tb_filmstrips} shows the zero-training and LoRA arms of Table~\ref{tab:lora} on one
-held-out clip per rig. Every panel overlays the two decodings of the same sample: the directly
-predicted joint positions and the forward kinematics of the predicted rotations. The zero-training
-arm produces two skeletons that disagree on every rig, most on the Dragon and the Spider, whose gap
-exceeds a bone length; the adapter brings them into agreement, which is what the drop of the
-FK--pose gap in Table~\ref{tab:lora} measures.
+held-out clip of three of the four rigs. Every panel overlays the two decodings of the same sample:
+the directly predicted joint positions and the forward kinematics of the predicted rotations. The
+zero-training arm produces two skeletons that disagree on every rig, most on the Spider, whose gap
+exceeds two bone lengths; the adapter brings them into agreement, which is what the drop of the
+FK--pose gap in Table~\ref{tab:lora} measures. Figure~\ref{fig:tb_world} shows the Dragon.
 
 \begin{figure}[p]
 \centering
@@ -802,9 +802,29 @@ rotations (teal); a visible separation is the projected FK--pose discrepancy (a 
 a disagreement in depth). Rows: the library model with the rig's statistics only (\emph{zero}, the
 unadapted snapshot, which is also where the articulation and jitter of that table's zero
 column come from; its gap column is read 10 to 15 optimiser steps in) and the per-rig adapter (\emph{LoRA}). Frames are anchored on the root horizontally
-and keep their height above the floor; the grey line marks the floor height beneath the root. The
-Dragon, a flying rig, is anchored on the root in all axes, which removes its dive trajectory. Both
-rows of a rig are drawn at the same scale.}\label{fig:tb_filmstrips}
+and keep their height above the floor; the grey line marks the floor height beneath the root. Both
+rows of a rig are drawn at the same scale. The clip shown is the one of that rig whose adapted
+sample is closest to the held-out motion; Table~\ref{tab:lora} reports all four rigs over all of
+their held-out clips.}\label{fig:tb_filmstrips}
+\end{figure}
+
+\paragraph{Two prompts on one unseen rig.} Figure~\ref{fig:tb_world} draws adapted samples without
+anchoring the root: every frame keeps the height the model produced, and the root's height profile runs
+through the strip. Each pair shares the rig, the adapter, the per-cell statistics, the rest-pose
+demonstration, the sampler and its seed, and differs only in the prompt. On the Dragon the dive spans
+\num{9.22} bone lengths of root height against \num{2.08} for level flight; on the Spider, whose root stays
+where the prompt leaves it, the joints move \num{0.99} bone lengths per second relative to the root while it
+scrambles and \num{0.20} while it lies injured.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\linewidth]{figures/tb_world.pdf}
+\caption{Two prompts on one rig, in world coordinates. Five frames at equal times of one held-out clip
+(light first, dark last) with the per-rig adapter of Table~\ref{tab:lora}. Every frame keeps the height the
+model produced; the horizontal placement is the panel's own time grid, the clay line is the root's height
+profile through the five frames and the grey line is the floor beneath the root. Skeletons are the directly
+predicted joint positions. The quoted sentence is the conditioning prompt; the two rows of a rig differ in
+nothing else and are drawn at one scale.}\label{fig:tb_world}
 \end{figure}
 
 \section{A motion demonstration in place of the rest frame}\label{app:demo64}
