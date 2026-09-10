@@ -55,9 +55,8 @@ in the same pools, a text--motion matching score of \num{0.764} against \num{0.7
 \num{0.005}; the \num{36}M pilot, trained on the same data with the same recipe, reaches R@1
 \num{0.897} and FID \num{0.008}. The pools follow the dataset order, so a pool holds clips of one
 rig or of neighbouring rigs; R-precision uses the \num{3{,}840} clips of the 60 complete pools, the
-matching score and the FID all \num{3{,}899}. The 95\% bootstrap interval over pools is
-$[\num{0.907}, \num{0.936}]$ for the \num{303}M R@1 and $[\num{0.955}, \num{0.971}]$ for the real
-clips (App.~\ref{app:controls}).
+matching score and the FID all \num{3{,}899}; the 95\% bootstrap interval over pools is
+$[\num{0.907}, \num{0.936}]$ for the \num{303}M R@1 and $[\num{0.955}, \num{0.971}]$ for the real clips.
 
 \begin{table}[t]
 \centering\small
@@ -80,10 +79,10 @@ Real clips (reference) & -- & \num{0.964} & \num{0.998} & \num{0.999} & 0 & \num
 \num{303}M model's R@1 of \num{0.922}. Re-deriving its joint positions from its own rotations leaves
 \num{0.923}; permuting its frames leaves \num{0.805}. Two degenerate sequences built from real data
 set the floor: the target clip's own first pose, held for its duration, scores \num{0.346}, and the
-rig's rest pose \num{0.109}, against a chance level of \num{0.018}. Giving every clip in a pool
-another clip's caption leaves \num{0.005}. A static pose of the right species is therefore already worth
-\num{0.346} under this protocol. Table~\ref{tab:controls} gives the same controls for the pilot and the two
-representation arms, and Figure~\ref{fig:qual} shows seven generated clips on the rigs' production meshes.
+rig's rest pose \num{0.109}, against a chance level of \num{0.018} --- a static pose of the right species is
+already worth \num{0.346} here. Giving every clip in a pool another clip's caption leaves \num{0.005}.
+Table~\ref{tab:controls} gives the same controls for the pilot and the two representation arms, and
+Figure~\ref{fig:qual} shows seven generated clips on the rigs' production meshes.
 
 \begin{figure}[t]
 \centering
@@ -96,20 +95,17 @@ own.}\label{fig:qual}
 
 \subsection{Extending the model to rigs it has never seen}\label{sec:exp:extend}
 
-\paragraph{Zero training and per-rig LoRA.} We take four Truebones rigs that differ from the
-library in body plan and joint count -- Buffalo (30 joints), Gazelle (29), Dragon (95 joints, a
-flying rig) and Spider (68) -- and compare three arms on the same held-out clips of each rig:
-(a) the library model with the new rig's per-cell statistics, computed from all of its clips including
-the evaluation clips, as its only rig-specific input (\emph{zero training}); (b) a per-rig
-low-rank adapter trained on the rig's 8--26 training clips (\emph{LoRA}, \S\ref{sec:method:lora});
-(c) a \num{36}M model of the same recipe trained on all \num{802} captioned Truebones clips,
-evaluation clips included, as a seen-clip reference.
-Table~\ref{tab:lora} gives the FK--pose gap on the held-out clips before and after adaptation next
-to the articulation and jitter of the sampled output: eight to twenty-six clips bring the gap from
-$0.25$--$1.2$ bone lengths to $0.08$--$0.15$, most on the two rigs farthest from the library, and
-the seen-clip reference sits at $0.06$--$0.13$. Most of that is bought early: the jitter of the zero-training arm is
-gone within 50--100 epochs and the gap plateaus by 150--200, after which longer adaptation changes nothing
-(App.~\ref{app:extend_more}).
+\paragraph{Zero training and per-rig LoRA.} We take four Truebones rigs that differ from the library in body
+plan and joint count -- Buffalo (30 joints), Gazelle (29), Dragon (95, a flying rig) and Spider (68) -- and
+compare three arms on the same held-out clips of each: (a) the library model with the new rig's per-cell
+statistics, computed from all of its clips including the evaluation ones, as its only rig-specific input
+(\emph{zero training}); (b) a per-rig low-rank adapter trained on the rig's 8--26 training clips
+(\emph{LoRA}, \S\ref{sec:method:lora}); (c) a \num{36}M model of the same recipe trained on all \num{802}
+captioned Truebones clips, evaluation clips included, as a seen-clip reference. Table~\ref{tab:lora} gives the
+FK--pose gap before and after adaptation next to the articulation and jitter of the sampled output: eight to
+twenty-six clips bring the gap from $0.25$--$1.2$ bone lengths to $0.08$--$0.15$, most on the two rigs farthest
+from the library, and the seen-clip reference sits at $0.06$--$0.13$. Most of that is bought early: the jitter
+is gone within 50--100 epochs and the gap plateaus by 150--200 (App.~\ref{app:extend_more}).
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}
@@ -139,29 +135,10 @@ Spider (68 j.)  & 26 / 6 & \num{1.029} & \num{0.130} & \num{0.088} & \num{2.87} 
 \paragraph{Capabilities.} The two capabilities this paper joins are available separately in released
 systems (Table~\ref{tab:open}): those that take the kinematic tree at inference are not text-conditioned, and
 the text-conditioned animal generators are built around one fixed skeleton. \method{} returns rotations and a
-world-space root trajectory the rig plays as generated, and measures that geometry against ground truth for the
-pilot and the main model alike (Table~\ref{tab:physical}: at \num{303}M the FK--pose gap is \num{0.24} bone
-lengths, the foot slide \num{1.84} against a real \num{2.03}). Table~\ref{tab:capability} adds the systems whose
-code is not public. The construction those systems reach a second skeleton with --- every joint padded into one
-flat per-frame vector --- is trained on our corpus at our budget in App.~\ref{app:flat} and read beside the
-ablations in Table~\ref{tab:simple}.
-
-\begin{table}[t]
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Systems with a public implementation we could run. \emph{Topology}: the kinematic tree is an input at
-inference, not fixed by the architecture. \emph{Rotations} / \emph{Root}: joint rotations and a world-space root
-trajectory, not positions a solver must turn back into a pose.}\label{tab:open}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-System & Code & Text & Topology & Rotations & Root \\
-\midrule
-Human T2M~\citep{tevet2023mdm,zhang2024motiondiffuse} & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ \\
-Animal T2M~\citep{wang2025animo,yang2024omnimotiongpt} & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ \\
-AnyTop~\citep{gat2025anytop} & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-\method{} (ours) & --- & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+world-space root trajectory the rig plays as generated, and measures that geometry against ground truth
+(Table~\ref{tab:physical}: at \num{303}M the FK--pose gap is \num{0.24} bone lengths, the foot slide
+\num{1.84} against a real \num{2.03}). Table~\ref{tab:capability} adds the systems whose code is not public;
+the construction they reach a second skeleton with is trained on our corpus in App.~\ref{app:flat}.
 
 
 \paragraph{AnyTop as an in-distribution reference.} The released AnyTop weights trained on the whole
@@ -171,20 +148,17 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 The ablations share the pilot's recipe and checkpoint epoch; App.~\ref{app:ablation_notes} collects them
-with the notes. Flattening the joint axis into one token per frame --- the construction that carries a
-fixed-skeleton generator to variable skeletons --- costs \num{0.198}--\num{0.208} of R@1 and multiplies the FID
-by \num{3.7}, with the corpus, split, captions, rest pose, objective, weights, schedule and budget matched and
-\num{5}\% more parameters on the flat side (Table~\ref{tab:simple}, App.~\ref{app:flat}). Keeping the joint
-axis and removing what this paper puts on it costs \num{0.067}--\num{0.072}, of which the calibrated group
-weights carry \num{0.036}--\num{0.045}, the geodesic and direction biases and the structural features
-\num{0.028}--\num{0.035}, and the joint descriptions none. The acceleration-matching
+with the notes. Flattening the joint axis into one token per frame costs \num{0.198}--\num{0.208} of R@1 and
+multiplies the FID by \num{3.7}, everything else matched and \num{5}\% more parameters on the flat side
+(Table~\ref{tab:simple}). Keeping the axis and removing what this paper puts on it costs
+\num{0.067}--\num{0.072}: the calibrated group weights carry \num{0.036}--\num{0.045}, the geodesic and
+direction biases and the structural features the rest, the joint descriptions none. The acceleration-matching
 term changes nothing (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched
 epoch (Table~\ref{tab:rep}). Its channel layout is worth under a point of R@1 against the 13-channel AnyTop
-layout derived from the same clips (Table~\ref{tab:repcontent}), and \num{0.007} once that arm's own objective
-and partition are matched, so retrieval is measuring the objective rather than the layout; what the layout does
-change is the leaf articulation, foot contact and root travel of Table~\ref{tab:physical}, and the agreement of
-the two output channels --- re-encoding a sample through the forward kinematics of its own rotations costs
-\num{0.005} of R@1 on \rep{} against \num{0.035} on the 13-channel layout (Table~\ref{tab:controls}). At a
-matched budget of 200 epochs the \num{36}M, \num{116}M and \num{303}M models reach R@1 \num{0.878},
-\num{0.900} and \num{0.914} (Table~\ref{tab:size}).
+layout derived from the same clips (Table~\ref{tab:repcontent}), and \num{0.007} once that arm's objective and
+partition are matched; what the layout changes is the leaf articulation, foot contact and root travel of
+Table~\ref{tab:physical} and the agreement of the two output channels --- re-encoding a sample through the
+forward kinematics of its own rotations costs \num{0.005} of R@1 on \rep{} against \num{0.035} on the
+13-channel layout (Table~\ref{tab:controls}). At 200 epochs the \num{36}M, \num{116}M and \num{303}M models
+reach R@1 \num{0.878}, \num{0.900} and \num{0.914} (Table~\ref{tab:size}).
 
