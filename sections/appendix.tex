@@ -438,6 +438,11 @@ caption text whenever the pool's duplicates allow it. The evaluation is bound to
 the digest of the scored clip ids in encoding order, and a control run is refused unless it
 reproduces that digest, the generation plan, and the canonical R-precision of the generated samples.
 
+\paragraph{Arithmetic.} Generating and scoring the epoch-100 pilot end to end with TF32 matrix multiplication
+gives R@1 \num{0.8641}, against \num{0.8643} in fp32 on the same checkpoint, the same evaluation order and the
+same evaluator: one clip of the \num{3{,}840} scored. R@2, R@3, the FID and the text-to-ground-truth cosine are
+identical to five decimals. Table captions name the arithmetic each arm was sampled under.
+
 \begin{table}[h]
 \centering\small
 \caption{Evaluator controls: R@1 in pools of 64 over the \num{3{,}899} validation clips. The 95\%
@@ -498,8 +503,9 @@ pilot's, and where the full recipe is still improving between epochs 50 and 100 
 \caption{The skeleton conditioning and the calibrated objective, removed together. Both arms are
 \num{36}M pilots on the same clips with the same batch, learning rate, schedule and sampler; the
 simplified arm zeroes the joint descriptions, removes the geodesic and direction biases and the
-structural features, and fixes every group weight at one. Frozen protocol, pools of 64, TF32 matrix
-multiplication.}\label{tab:simple}
+structural features, and fixes every group weight at one. Frozen protocol, pools of 64; the simplified arm was
+sampled with TF32 matrix multiplication and the full recipe in fp32, which App.~\ref{app:controls} measures at
+\num{0.0003} of R@1.}\label{tab:simple}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 & \multicolumn{2}{c}{Simplified} & \multicolumn{2}{c}{Full recipe} \\
@@ -665,7 +671,8 @@ Internal-joint artic., temporal std (deg) & \num{8.99} & \num{7.11} & \num{8.26}
 \centering\footnotesize
 \caption{Channel layout at matched epochs (\num{36}M recipe, global batch 128, per-cell normalisation
 in both; frozen protocol: pool 64, 20 Euler steps, guidance 2, seed 42). The AnyTop-13 rows were sampled
-with TF32 matrix multiplication, the \rep{} rows in fp32.}\label{tab:repcontent}
+with TF32 matrix multiplication, the \rep{} rows in fp32, which App.~\ref{app:controls} measures at
+\num{0.0003} of R@1.}\label{tab:repcontent}
 \begin{tabular}{lcccc}
 \toprule
 & \multicolumn{2}{c}{\rep{} (ours)} & \multicolumn{2}{c}{AnyTop-13 layout, derived} \\
@@ -690,7 +697,7 @@ size, not from the longer schedule.
 \centering\footnotesize
 \caption{Model size at matched optimiser steps (epoch 200, global batch 128; frozen protocol, pool 64,
 20 Euler steps, guidance 2, seed 42). The \num{36}M row was sampled in fp32, the two larger rows with
-TF32 matrix multiplication.}\label{tab:size}
+TF32 matrix multiplication, which App.~\ref{app:controls} measures at \num{0.0003} of R@1.}\label{tab:size}
 \begin{tabular}{lcccc}
 \toprule
 Model & Width / depth / heads & R@1$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ \\
