@@ -155,7 +155,8 @@ and are folded back into the weights at export, so every consumer loads a plain 
 new rig's data view is built by the corpus script (joint pruning to the deformation-bone convention,
 corpus-style captions, a split by source animation) and the adapter is trained with the backbone
 recipe for 300--900 epochs (App.~\ref{app:lora}); a single adapter shared by a group of rigs
-recovers most of the same ground (App.~\ref{app:extend_more}).
+removes the same jitter excess on all of them, and matches a per-rig adapter on the one rig where both were
+trained (App.~\ref{app:extend_more}).
 
 \subsection{Skeleton-aware evaluation}\label{sec:method:eval}
 \paragraph{Evaluator.} Retrieval metrics require a text--motion embedding, and existing ones are

@@ -168,8 +168,9 @@ leaf-closed subtrees so no forward kinematics is re-run); captions are rewritten
 ``The $\langle$species$\rangle$ $\langle$action$\rangle$''; and the train/validation split is made
 by source animation so that no clip straddles it. Training follows the backbone recipe with the
 learning rate scaled linearly to the batch, one pass over every clip per epoch, 300--900 epochs and
-a shortened forward-kinematics warm-up. A single adapter can also be shared by a group of rigs,
-which recovers most of a per-rig adapter's effect (App.~\ref{app:extend_more}).
+a shortened forward-kinematics warm-up. A single adapter can also be shared by a group of rigs, which removes the
+unadapted model's jitter excess on all of them and, on the one rig where both were trained, comes close to
+its own adapter (App.~\ref{app:extend_more}).
 
 \paragraph{Hyper-parameters.} Table~\ref{tab:lora_hp} lists the per-rig settings. The learning rate
 follows the linear-scaling rule from $10^{-4}$ at batch 8; the batch divides the rig's training-clip
@@ -223,8 +224,10 @@ rigs' native 30\,Hz, as no external source is involved). Table~\ref{tab:flyers} 
 rigs. The shared adapter removes the zero-training arm's jitter excess (median \num{5.5} to \num{0.99} times real) and settles
 articulation at \num{0.46}--\num{0.83} of the real clips. On Dragon, the one rig that also has an adapter of its own, the two are
 close: articulation \num{0.52} shared against \num{0.49} species-specific and jitter \num{0.95} against \num{0.70}, both
-nearer the real motion's \num{1} for the shared adapter, while the species-specific one is nearer on root jitter. Pooling eight bodies therefore buys most of what a per-rig adapter buys on rigs that have
-none of their own, and does not replace one where it exists.
+nearer the real motion's \num{1} for the shared adapter, while the species-specific one is nearer on root jitter.
+Dragon is the only rig here that has both, so what this table establishes is that pooling eight bodies removes the
+unadapted jitter excess on all seven and, on that one rig, reaches an adapter of its own; whether it does so on the
+other six is not measured.
 
 \begin{table}[h]
 \centering\footnotesize\setlength{\tabcolsep}{5pt}
@@ -802,8 +805,8 @@ over the clip, three-quarter view; the quoted sentence is the conditioning promp
 directly predicted joint positions (clay) are overlaid by the forward kinematics of the predicted
 rotations (teal); a visible separation is the projected FK--pose discrepancy (a single view can hide
 a disagreement in depth). Rows: the library model with the rig's statistics only (\emph{zero}, the
-unadapted snapshot, which is also where the articulation and jitter of that table's zero
-column come from; its gap column is read 10 to 15 optimiser steps in) and the per-rig adapter (\emph{LoRA}). Frames are anchored on the root horizontally
+unadapted snapshot, from which every column of that table's \emph{zero} block is read) and the per-rig
+adapter (\emph{LoRA}). Frames are anchored on the root horizontally
 and keep their height above the floor; the grey line marks the floor height beneath the root. Both
 rows of a rig are drawn at the same scale. The clip shown is the one of that rig whose adapted
 sample is closest to the held-out motion; Table~\ref{tab:lora} reports all four rigs over all of
