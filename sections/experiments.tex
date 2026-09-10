@@ -40,7 +40,10 @@ normalised) and the root speed ratio. Ratios are taken against \emph{all} real c
 and ours are measured identically. The \emph{FK--pose gap} is the mean distance, in the rig's
 mean bone length, between the joint positions obtained by forward kinematics of the predicted
 rotations and the directly predicted ones: a consistency of the two channels, not a distance to the
-target, read from the training-time validation pass (App.~\ref{app:calib}). Library clips are
+target. On the library ablations it is read from the training-time validation pass at the stated epoch
+(App.~\ref{app:calib}); on the Truebones arms of \S\ref{sec:exp:extend} and on the frozen samples of
+Table~\ref{tab:physical} it is measured on the generated sequences themselves, so that it comes from the
+same output as the articulation and jitter reported beside it. Library clips are
 generated at the real clip's length (at most 240 frames)
 from the epoch-289 checkpoint with seed 42; the Truebones arms of \S\ref{sec:exp:extend} use the
 epoch-214 snapshot that initialised the adapters, seed 7.
@@ -102,18 +105,20 @@ statistics, computed from all of its clips including the evaluation ones, as its
 (\emph{zero training}); (b) a per-rig low-rank adapter trained on the rig's 8--26 training clips
 (\emph{LoRA}, \S\ref{sec:method:lora}); (c) a \num{36}M model of the same recipe trained on all \num{802}
 captioned Truebones clips, evaluation clips included, as a seen-clip reference. Table~\ref{tab:lora} gives the
-FK--pose gap before and after adaptation next to the articulation and jitter of the sampled output: eight to
-twenty-six clips bring the gap from $0.25$--$1.2$ bone lengths to $0.08$--$0.15$, most on the two rigs farthest
-from the library, and the seen-clip reference sits at $0.06$--$0.13$. Most of that is bought early: the jitter
-is gone within 50--100 epochs and the gap plateaus by 150--200 (App.~\ref{app:extend_more}).
+FK--pose gap before and after adaptation next to the articulation and jitter of the same sampled output: eight to
+twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, most on the two rigs farthest
+from the library, and the seen-clip reference sits at $0.08$--$0.21$. Most of that is bought early: the jitter
+is gone within 50--100 epochs and the gap plateaus by 100--150 (Dragon: 450, App.~\ref{app:extend_more}).
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}
 \caption{Extending \method{} (\num{303}M) to four Truebones rigs, each arriving with its own per-cell
 statistics and masks. \emph{zero}: the library model served with those statistics and nothing
-else --- articulation and jitter from that model, the gap from the adapter run's first validation, 10 to 15
-steps in; \emph{LoRA}: the per-rig adapter; \emph{TB-only}: a \num{36}M model trained on all Truebones clips
-including these. Gap in bone lengths; articulation and jitter of the sampled FK output relative to all real
+else, with no update of any kind; \emph{LoRA}: the per-rig adapter; \emph{TB-only}: a \num{36}M model trained
+on all Truebones clips including these. All three columns are read off the same generated sequences: the gap is
+the mean distance between the two decodings of a sample --- its direct joint positions and the forward kinematics
+of its predicted rotations --- in the rig's mean rest bone length, where the two decodings of a ground-truth clip
+agree to \num{1e-7}; articulation and jitter are of the sampled FK output relative to all real
 clips of the rig (1 = real). App.~\ref{app:lora} and App.~\ref{app:extend_more} give the settings, the
 \num{36}M study and a shared adapter for eight flying rigs.}\label{tab:lora}
 \begin{tabular}{@{}llccccccccc@{}}
@@ -122,10 +127,10 @@ clips of the rig (1 = real). App.~\ref{app:lora} and App.~\ref{app:extend_more} 
 \cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
 Rig & Train / val & zero & LoRA & TB-only & zero & LoRA & TB-only & zero & LoRA & TB-only \\
 \midrule
-Buffalo (30 j.) & 15 / 5 & \num{0.323} & \num{0.132} & \num{0.072} & \num{1.45} & \num{0.30} & \num{0.67} & \num{3.32} & \num{0.33} & \num{1.02} \\
-Gazelle (29 j.) & 8 / 2  & \num{0.255} & \num{0.084} & \num{0.062} & \num{5.39} & \num{0.77} & \num{1.22} & \num{13.2} & \num{0.86} & \num{1.92} \\
-Dragon (95 j.)  & 10 / 3 & \num{1.215} & \num{0.146} & \num{0.134} & \num{1.02} & \num{0.49} & \num{1.23} & \num{2.53} & \num{0.52} & \num{1.12} \\
-Spider (68 j.)  & 26 / 6 & \num{1.029} & \num{0.130} & \num{0.088} & \num{2.87} & \num{0.24} & \num{0.35} & \num{6.49} & \num{0.20} & \num{0.37} \\
+Buffalo (30 j.) & 15 / 5 & \num{0.797} & \num{0.349} & \num{0.144} & \num{1.45} & \num{0.30} & \num{0.67} & \num{3.32} & \num{0.33} & \num{1.02} \\
+Gazelle (29 j.) & 8 / 2  & \num{0.574} & \num{0.227} & \num{0.081} & \num{5.39} & \num{0.77} & \num{1.22} & \num{13.2} & \num{0.86} & \num{1.92} \\
+Dragon (95 j.)  & 10 / 3 & \num{4.458} & \num{0.304} & \num{0.206} & \num{1.02} & \num{0.49} & \num{1.23} & \num{2.53} & \num{0.52} & \num{1.12} \\
+Spider (68 j.)  & 26 / 6 & \num{1.896} & \num{0.232} & \num{0.185} & \num{2.87} & \num{0.24} & \num{0.35} & \num{6.49} & \num{0.20} & \num{0.37} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -156,8 +161,12 @@ direction biases and the structural features the rest, the joint descriptions no
 term changes nothing (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched
 epoch (Table~\ref{tab:rep}). Its channel layout is worth under a point of R@1 against the 13-channel AnyTop
 layout derived from the same clips (Table~\ref{tab:repcontent}), and \num{0.007} once that arm's objective and
-partition are matched; what the layout changes is the leaf articulation, foot contact and root travel of
-Table~\ref{tab:physical} and the agreement of the two output channels --- re-encoding a sample through the
+partition are matched. What the layout changes by itself is the leaf articulation of
+Table~\ref{tab:physical}: the 13-channel layout has no rotation slot for a leaf joint and the conversion fills
+it from the parent. What the layout changes together with the two world-coordinate loss terms it makes
+writable --- the 13-channel layout carries neither the root track nor the heading they are written against, so
+that arm trains without them --- is the foot contact and root travel of the same table, and the agreement of the
+two output channels: re-encoding a sample through the
 forward kinematics of its own rotations costs \num{0.005} of R@1 on \rep{} against \num{0.035} on the
 13-channel layout (Table~\ref{tab:controls}). At 200 epochs the \num{36}M, \num{116}M and \num{303}M models
 reach R@1 \num{0.878}, \num{0.900} and \num{0.914} (Table~\ref{tab:size}).
