@@ -114,7 +114,7 @@ clips of the rig (1 = real). App.~\ref{app:lora} and App.~\ref{app:extend_more} 
 \num{36}M study and a shared adapter for eight flying rigs.}\label{tab:lora}
 \begin{tabular}{@{}llccccccccc@{}}
 \toprule
-& & \multicolumn{3}{c}{FK--pose gap (bl)$\downarrow$} & \multicolumn{3}{c}{Articulation ratio} & \multicolumn{3}{c}{Jitter ratio} \\
+& & \multicolumn{3}{c}{FK--pose gap, sampled (bl)$\downarrow$} & \multicolumn{3}{c}{Articulation ratio} & \multicolumn{3}{c}{Jitter ratio} \\
 \cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
 Rig & Train / val & zero & LoRA & TB-only & zero & LoRA & TB-only & zero & LoRA & TB-only \\
 \midrule
@@ -151,9 +151,9 @@ multiplies the FID by \num{3.7}, everything else matched and \num{5}\% more para
 direction biases and the structural features the rest, the joint descriptions none. Removing the
 acceleration-matching term changes neither retrieval nor the FK--pose gap, which is not a test of the temporal
 smoothness it is there for (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched
-epoch (Table~\ref{tab:rep}). Its channel layout is worth under a point of R@1 against the 13-channel AnyTop
-layout derived from the same clips (Table~\ref{tab:repcontent}), and \num{0.007} once that arm's objective and
-partition are matched. What the layout changes by itself is the leaf articulation of
+epoch (Table~\ref{tab:rep}). Its channel layout is within a point of R@1 of the 13-channel AnyTop
+layout derived from the same clips, in that layout's favour (Table~\ref{tab:repcontent}), and \num{0.008} apart
+once that arm's objective and partition are matched. What the layout changes by itself is the leaf articulation of
 Table~\ref{tab:physical}: the 13-channel layout has no rotation slot for a leaf joint and the conversion fills
 it from the parent. What the layout changes together with the two world-coordinate loss terms it makes
 writable --- the 13-channel layout carries neither the root track nor the heading they are written against, so

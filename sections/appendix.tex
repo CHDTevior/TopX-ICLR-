@@ -213,7 +213,9 @@ validation clips of seven of them with the geometric protocol of \S\ref{sec:exp:
 rigs' native 30\,Hz, as no external source is involved). Table~\ref{tab:flyers} compares it with the zero-training arm on seven
 rigs. The shared adapter removes the zero-training arm's jitter excess (median \num{5.5} to \num{0.99} times real) and settles
 articulation at \num{0.46}--\num{0.83} of the real clips. On Dragon, the one rig that also has an adapter of its own, the two are
-close: articulation \num{0.52} shared against \num{0.49} species-specific and jitter \num{0.95} against \num{0.70}, both
+close: at this table's \num{30}\,Hz, articulation \num{0.52} shared against \num{0.49} species-specific and
+jitter \num{0.95} against \num{0.70} (the species-specific adapter reads \num{0.52} in Table~\ref{tab:lora}, which
+is scored at \num{20}\,Hz beside the AnyTop samples), both
 nearer the real motion's \num{1} for the shared adapter, while the species-specific one is nearer on root jitter.
 Dragon is the only rig here that has both, so what this table establishes is that pooling eight bodies removes the
 unadapted jitter excess on all seven and, on that one rig, reaches an adapter of its own; whether it does so on the
@@ -259,7 +261,7 @@ output relative to all real clips of the rig (1 = real). Spider's real root is s
 undefined.}\label{tab:supportonly}
 \begin{tabular}{@{}llccc@{}}
 \toprule
-Rig & Arm & FK--pose gap (bl)$\downarrow$ & Articulation ratio & Jitter ratio \\
+Rig & Arm & FK--pose gap, sampled (bl)$\downarrow$ & Articulation ratio & Jitter ratio \\
 \midrule
 Buffalo (30 j.) & zero & \num{0.722} (\num{0.797}) & \num{1.34} (\num{1.45}) & \num{3.00} (\num{3.32}) \\
                 & LoRA & \num{0.311} (\num{0.349}) & \num{0.34} (\num{0.30}) & \num{0.39} (\num{0.33}) \\
@@ -287,7 +289,7 @@ amplitude of motion. Gazelle, with two validation clips, is the noisiest row.
 \begin{table}[h]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \caption{Adapter training length. Snapshots of the per-rig LoRA (\num{303}M backbone, same clips, learning rate and
-batch as Table~\ref{tab:lora}); FK--pose gap in bone lengths on the validation clips, articulation and jitter of the
+batch as Table~\ref{tab:lora}); FK--pose gap of the sampled output in bone lengths, articulation and jitter of the
 sampled FK output relative to all real clips of the rig (1 = real). Epoch 0 is the library model with the
 rig's statistics and no adapter update; every column, the gap included, is measured on that snapshot's own
 generated sequences. Dragon's snapshots are at 150 / 300 / 450 / 600 / 900 epochs.}\label{tab:lora_len}
@@ -400,7 +402,7 @@ Table~\ref{tab:lora}). Spider's real root is static, so its
 root-speed ratio is undefined. $n$ = number of sequences.}\label{tab:anytop}
 \begin{tabular}{llcccc}
 \toprule
-Rig & Source ($n$) & Jitter & Articulation & Root speed & FK--pose gap (bl) \\
+Rig & Source ($n$) & Jitter & Articulation & Root speed & FK--pose gap, sampled (bl) \\
 \midrule
 Buffalo & AnyTop (8) & \num{0.83} & \num{0.55} & \num{0.30} & -- \\
         & Ours, zero (5) & \num{3.32} & \num{1.45} & \num{0.43} & \num{0.797} \\
@@ -496,15 +498,15 @@ rate, schedule and budget, read at the same three epochs under the frozen protoc
 
 The arm \emph{without the joint descriptions} zeroes and freezes the description projection and keeps
 everything else. It is level with the full recipe at all three epochs (\num{+0.002}, \num{+0.003},
-\num{+0.002} of R@1) and its FID is \num{10}--\num{16}\% lower.
+\num{+0.002} of R@1) and its FID is \num{10}\% lower at epoch 100.
 
 The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
-at uniform weights. It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{50}--\num{60}\%, and
+at uniform weights. It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{61}\% at epoch 100, and
 it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
 direction biases off, structural features dropped, uniform weights --- loses \num{0.067}--\num{0.072}. Against
-the two arms above, the remaining \num{0.028}--\num{0.035} is what the geodesic and direction biases and the
+the two arms above, the remaining \num{0.029}--\num{0.033} is what the geodesic and direction biases and the
 structural features carry.
 
 The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
@@ -545,7 +547,7 @@ acceleration term optimises a different objective, so its validation loss is not
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Variant & Val.\ loss$\downarrow$ & FK--pose gap (bl)$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
+Variant & Val.\ loss$\downarrow$ & FK--pose gap, validation pass (bl)$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \midrule
 Full recipe (rest demo, calibrated, $\mathbf{x}$-pred, qk-norm) & \num{0.247} & \num{0.171} & \num{0.821} & \num{0.011} \\
 Motion demonstration in place of the rest frame (App.~\ref{app:demo64}) & \num{0.270} & \num{0.202} & \num{0.822} & \num{0.010} \\
@@ -586,7 +588,7 @@ the training-time validation pass at the same epoch.}\label{tab:rep}
 \toprule
 & \multicolumn{3}{c}{Per-cell mean/std (ours)} & \multicolumn{3}{c}{Scale-only} \\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Epoch & R@1$\uparrow$ & FID$\downarrow$ & FK--pose gap$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ & FK--pose gap$\downarrow$ \\
+Epoch & R@1$\uparrow$ & FID$\downarrow$ & gap, val.\ pass$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ & gap, val.\ pass$\downarrow$ \\
 \midrule
 50  & \num{0.798} & \num{0.0157} & \num{0.198} & \num{0.778} & \num{0.0201} & \num{0.117} \\
 75  & \num{0.803} & \num{0.0146} & \num{0.193} & \num{0.786} & \num{0.0194} & \num{0.111} \\
@@ -671,7 +673,7 @@ arm, \num{2.03} against the \num{303}M model.}\label{tab:physical}
 \cmidrule(lr){3-4}
 Quantity & Data & \num{36}M & \num{303}M & AnyTop-13 & \rep{} closer \\
 \midrule
-FK--pose gap (bl) & \num{0.000} & \num{0.381} & \num{0.236} & \num{1.447} & \num{100}\% \\
+FK--pose gap, sampled (bl) & \num{0.000} & \num{0.381} & \num{0.236} & \num{1.447} & \num{100}\% \\
 Bone-length error, direct pos.\ (bl) & \num{0.000} & \num{0.077} & \num{0.052} & \num{0.119} & \num{91}\% \\
 Leaf articulation, mean dev.\ from rest (deg) & \num{11.6} & \num{10.6} & \num{11.3} & \num{0.0} & \num{92}\% \\
 Leaf articulation, temporal std (deg) & \num{5.86} & \num{5.24} & \num{5.69} & \num{0.00} & \num{89}\% \\
@@ -848,7 +850,7 @@ matching score.
 \paragraph{Pool size.} Retrieval among more candidates is harder for the real clips and for the
 generated ones alike, and the pool size is a free parameter of the protocol. Table~\ref{tab:pool}
 re-scores the same generated samples at four pool sizes; the ranking of the two models does not depend on
-the choice, while the gap to the real clips widens with the pool (from \num{0.030} at 16 to \num{0.046} at 128 for
+the choice, while the gap to the real clips widens with the pool (from \num{0.028} at 16 to \num{0.044} at 128 for
 the \num{303}M model); the main text uses 64.
 
 \begin{table}[h]
