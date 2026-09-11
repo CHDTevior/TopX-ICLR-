@@ -61,14 +61,13 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
   leg'', ``tail segment 3'') are added to their tokens, and spatial attention is biased by tree
   distance. The network holds no per-skeleton parameter: joints occupy positions in a learned table
   of 160 slots in the order the rig lists them, and a slot carries no rig-specific weight, so a new rig
-  is a new set of inputs. On the library rigs the descriptions are worth nothing measurable
-  (\S\ref{sec:exp:ablation}).
+  is a new set of inputs.
 \item \textbf{A calibrated grouped flow-matching objective and a recipe that trains at 0.3B}
   (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies so that
   the root, contact and trajectory channels of a large rig are not drowned by its many body
   rotations; a mechanism check certifies the calibration before training; query--key normalisation
   makes the 0.3B model trainable; and retrieval and FID improve monotonically from \num{36}M to
-  \num{303}M parameters at a matched budget.
+  \num{303}M parameters at a matched number of optimiser steps.
 \item \textbf{An extension study} (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). A rig outside
   the library is served by the same forward pass given its rest pose, joint descriptions and per-cell
   statistics, and a per-rig low-rank adapter trained on eight to twenty-six clips brings its rotation
@@ -79,9 +78,9 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
 \end{enumerate}
 
 \paragraph{Results.} One \num{303}M-parameter \method{} trained on all \num{311} rigs is scored by a
-skeleton-aware text--motion evaluator on \num{3{,}899} held-out clips of those rigs: R@1 \num{0.922}
-against \num{0.964} for the real clips in the same pools, FID \num{0.005} (\S\ref{sec:exp:main}); the
-\num{36}M pilot reaches \num{0.897}. On Truebones rigs never seen in training, a per-rig adapter on
+skeleton-aware text--motion evaluator on \num{3{,}899} held-out clips of those rigs: R@1 \num{0.864}
+against \num{0.904} for the real clips in the same pools, FID \num{0.005} (\S\ref{sec:exp:main}); the
+\num{36}M pilot reaches \num{0.840}. On Truebones rigs never seen in training, a per-rig adapter on
 ten to fifteen clips lowers the FK--pose gap (the disagreement between the rotation and position
 channels of the prediction) from \num{4.46} to \num{0.30} bone lengths on a 95-joint dragon, while
 the adapted outputs move less than the real clips.

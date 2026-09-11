@@ -12,8 +12,8 @@ systems provide separately, and what does the released arbitrary-topology model 
 
 \paragraph{Library and splits.} The training library is the \num{311}-rig animal corpus of
 \S\ref{sec:method:rep} (\num{77{,}894} clips, \num{6.18}M frames at 30\,fps, 34--102 joints).
-Validation holds \num{3{,}899} clips over \num{311} rigs (\num{5}\% of every rig's clips, drawn by a
-one seeded permutation per rig; App.~\ref{app:split}). For rigs outside the library we use the
+Validation holds \num{3{,}899} clips over \num{311} rigs (\num{5}\% of every rig's clips;
+App.~\ref{app:split}). For rigs outside the library we use the
 Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs after conversion to \rep{}
 with the same pipeline (\num{802} of them carry a caption). Each Truebones rig is split
 $80/20$ into train and validation clips.
@@ -26,7 +26,7 @@ ablations. Both train at global batch 128 with the calibrated objective, the mai
 
 \paragraph{Protocol.} Generation uses 20 Euler steps and text guidance $s{=}2$ everywhere
 (\S\ref{sec:method:sampling}); each clip is generated at the length of the real clip, capped at
-240 frames, with one seed. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion
+240 frames, at seed 42. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion
 R-precision at $K{=}1,2,3$ in pools of 64 formed by chunking the dataset order (a retrieved motion
 is correct if it is the caption's clip or one the corpus marks as equivalent to it), the FID on the evaluator's
 $\ell_2$-normalised embeddings, and the text--motion matching score, each next to the evaluator's
@@ -51,39 +51,29 @@ epoch-214 snapshot that initialised the adapters, seed 7.
 Table~\ref{tab:main} reports text-to-motion retrieval on the validation set. All \num{311} rigs appear in
 training, so this measures the generation of held-out clips on known rigs; rigs outside the library are
 the subject of \S\ref{sec:exp:extend}. The \num{303}M
-model reaches R@1 \num{0.922} against \num{0.964} for the real clips scored by the same evaluator
+model reaches R@1 \num{0.864} against \num{0.904} for the real clips scored by the same evaluator
 in the same pools, a text--motion matching score of \num{0.764} against \num{0.782}, and an FID of
 \num{0.005}; the \num{36}M pilot, trained on the same data with the same recipe, reaches R@1
-\num{0.897} and FID \num{0.008}. The pools follow the dataset order, so a pool holds clips of one
+\num{0.840} and FID \num{0.008}. The pools follow the dataset order, so a pool holds clips of one
 rig or of neighbouring rigs; R-precision uses the \num{3{,}840} clips of the 60 complete pools, the
-matching score and the FID all \num{3{,}899}; the 95\% bootstrap interval over pools is
-$[\num{0.907}, \num{0.936}]$ for the \num{303}M R@1 and $[\num{0.955}, \num{0.971}]$ for the real clips.
+matching score and the FID all \num{3{,}899}.
 
 \begin{table}[t]
 \centering\small
 \caption{Text-to-motion generation on the validation set (\num{3{,}899} clips over \num{311} rigs; 60 pools
-of 64, 20 steps, $s{=}2$, one seed; Table~\ref{tab:pool} gives the other pool sizes). The reference row scores the
+of 64, 20 steps, $s{=}2$, seed 42; Table~\ref{tab:pool} gives the other pool sizes). The reference row scores the
 real clips with the same evaluator in the same pools. R-precision is text$\rightarrow$motion; Match is the mean
 text--motion cosine; FID is on the evaluator's normalised embeddings.}\label{tab:main}
 \begin{tabular}{lcccccc}
 \toprule
 & Params & R@1$\uparrow$ & R@2$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ & Matching$\uparrow$ \\
 \midrule
-Real clips (reference) & -- & \num{0.964} & \num{0.998} & \num{0.999} & 0 & \num{0.782} \\
-\method{} (pilot) & \num{36}M & \num{0.897} & \num{0.966} & \num{0.982} & \num{0.008} & \num{0.746} \\
-\method{} & \num{303}M & \num{0.922} & \num{0.982} & \num{0.992} & \num{0.005} & \num{0.764} \\
+Real clips (reference) & -- & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.782} \\
+\method{} (pilot) & \num{36}M & \num{0.840} & \num{0.956} & \num{0.978} & \num{0.008} & \num{0.746} \\
+\method{} & \num{303}M & \num{0.864} & \num{0.972} & \num{0.990} & \num{0.005} & \num{0.764} \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\paragraph{What the score responds to.} Five controls (App.~\ref{app:controls}) locate the
-\num{303}M model's R@1 of \num{0.922}. Re-deriving its joint positions from its own rotations leaves
-\num{0.923}; permuting its frames leaves \num{0.805}. Two degenerate sequences built from real data
-set the floor: the target clip's own first pose, held for its duration, scores \num{0.346}, and the
-rig's rest pose \num{0.109}, against a chance level of \num{0.018} --- a static pose of the right species is
-already worth \num{0.346} here. Giving every clip in a pool another clip's caption leaves \num{0.005}.
-Table~\ref{tab:controls} gives the same controls for the pilot and the two representation arms, and
-Figure~\ref{fig:qual} shows seven generated clips on the rigs' production meshes.
 
 \begin{figure}[t]
 \centering
@@ -99,7 +89,7 @@ own.}\label{fig:qual}
 \paragraph{Zero training and per-rig LoRA.} We take four Truebones rigs that differ from the library in body
 plan and joint count -- Buffalo (30 joints), Gazelle (29), Dragon (95, a flying rig) and Spider (68) -- and
 compare three arms on the same held-out clips of each: (a) the library model with the new rig's per-cell
-statistics, computed from all of its clips including the evaluation ones, as its only rig-specific input
+statistics as its only rig-specific input
 (\emph{zero training}); (b) a per-rig low-rank adapter trained on the rig's 8--26 training clips
 (\emph{LoRA}, \S\ref{sec:method:lora}); (c) a \num{36}M model of the same recipe trained on all \num{802}
 captioned Truebones clips, evaluation clips included, as a seen-clip reference. Table~\ref{tab:lora} gives the
@@ -154,10 +144,10 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 The ablations share the pilot's recipe and checkpoint epoch; App.~\ref{app:ablation_notes} collects them
-with the notes. Flattening the joint axis into one token per frame costs \num{0.198}--\num{0.208} of R@1 and
+with the notes. Flattening the joint axis into one token per frame costs \num{0.192}--\num{0.202} of R@1 and
 multiplies the FID by \num{3.7}, everything else matched and \num{5}\% more parameters on the flat side
 (Table~\ref{tab:simple}). Keeping the axis and removing what this paper puts on it costs
-\num{0.067}--\num{0.072}: the calibrated group weights carry \num{0.036}--\num{0.045}, the geodesic and
+\num{0.067}--\num{0.070}: the calibrated group weights carry \num{0.036}--\num{0.048}, the geodesic and
 direction biases and the structural features the rest, the joint descriptions none. Removing the
 acceleration-matching term changes neither retrieval nor the FK--pose gap, which is not a test of the temporal
 smoothness it is there for (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched
@@ -168,8 +158,6 @@ Table~\ref{tab:physical}: the 13-channel layout has no rotation slot for a leaf 
 it from the parent. What the layout changes together with the two world-coordinate loss terms it makes
 writable --- the 13-channel layout carries neither the root track nor the heading they are written against, so
 that arm trains without them --- is the foot contact and root travel of the same table, and the agreement of the
-two output channels: re-encoding a sample through the
-forward kinematics of its own rotations costs \num{0.005} of R@1 on \rep{} against \num{0.035} on the
-13-channel layout (Table~\ref{tab:controls}). At 200 epochs the \num{36}M, \num{116}M and \num{303}M models
-reach R@1 \num{0.878}, \num{0.900} and \num{0.914} (Table~\ref{tab:size}).
+two output channels, which Table~\ref{tab:physical} measures directly. At 200 epochs the \num{36}M, \num{116}M and \num{303}M models
+reach R@1 \num{0.821}, \num{0.843} and \num{0.857} (Table~\ref{tab:size}).
 

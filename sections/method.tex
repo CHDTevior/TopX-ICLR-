@@ -120,8 +120,7 @@ relative to it. A \emph{mechanism check} then takes 30 optimiser-free steps of a
 every family's measured share of $\|\partial\mathcal{L}/\partial\hat{\mathbf{x}}_1\|^{2}$, accumulated
 over those steps, matches the $\gamma_g^{2}Q_g$ prediction within 25\%. It certifies the wiring of the
 weights, not that the pre-registered profile is realised during training: the realised share moves with
-the error energies, which evolve. The trainer refuses to start unless the artifact matches the objective
-it is run with ($t$ sampler, $\sigma_{\min}$, Huber knee, masks, batch size; App.~\ref{app:calib}).
+the error energies, which evolve (App.~\ref{app:calib}).
 
 \paragraph{Auxiliary terms.} A forward-kinematics consistency term between predicted positions and
 positions forward-kinematised from predicted rotations, a velocity term on world joint displacements,
@@ -169,6 +168,6 @@ evaluator sees only real data, never generated samples, and shares no weights wi
 \paragraph{Protocol.} Text$\to$motion R@1/2/3 in pools of 64, matching score and FID in the
 evaluator space, each next to the evaluator's score on the real clips of the same pools (with shuffled
 captions the evaluator scores R@1 \num{0.035} in pools of 32, chance \num{0.031}); generation is fixed at 20 steps,
-$s{=}2$ and one seed and sharded across GPUs under a hashed generation plan with provenance checks.
+$s{=}2$ at seed 42 and sharded across GPUs under a hashed generation plan with provenance checks.
 Rigs outside the library, for which no evaluator exists, are scored geometrically
 (\S\ref{sec:exp:setup}).

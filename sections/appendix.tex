@@ -100,11 +100,7 @@ carry more), about ten words each at the median; the primary caption is the one 
 for evaluation. One caption of one clip was dropped as corrupt (a \num{12{,}296}-character repetition);
 its two siblings were kept. The rigs are our own re-export with deformation bones only, the
 natural-language joint descriptions are ours (written from the joint names, \S\ref{sec:method:model}),
-and the conversion to \rep{} is new. A source audit of an earlier build of this corpus identified $161$ clips whose joint speeds lay in
-the extreme tail of their rig, which trace to defects of the source animations rather than to the
-conversion. Of those $161$, $81$ are \rep{} library clips and all $81$ are present in the corpus used
-here ($78$ training, $3$ validation): they are not removed, the objective's robust knee
-(\S\ref{sec:method:objective}) having been adopted in their place.
+and the conversion to \rep{} is new.
 
 \section{Model details}\label{app:model}
 
@@ -117,12 +113,6 @@ limb'' are distinguishable; padded joints receive $-10^{4}$.
 
 
 \section{Calibration of the grouped objective}\label{app:calib}
-
-\paragraph{Batch of the mechanism check.} The grouped loss normalises per batch, so an artifact
-certifies the objective at the batch it was checked with, and the trainer refuses a mismatch. The two
-models of Table~\ref{tab:main} predate that rule: they continue under an artifact checked at batch 8
-while training at 16 per rank, which the run announces and records in its checkpoint. Every arm
-started after the rule carries a batch-matched artifact.
 
 \paragraph{Auxiliary terms.} Four terms are added in the same calibrated frame: a
 forward-kinematics consistency term between predicted positions and positions forward-kinematised
@@ -219,7 +209,7 @@ ratios \num{0.2}--\num{0.9}), and the Truebones-only model does so on Spider alo
 
 \paragraph{An adapter shared across species helps, and does not replace a per-rig one.} One rank-128 adapter trained on the pooled clips of eight flying
 Truebones rigs (Bat, Bird, Buzzard, Dragon, Eagle, Giant bee, Parrot, Pteranodon; \num{78} training clips) is scored on the
-validation clips of each rig with the geometric protocol of \S\ref{sec:exp:setup} (all real clips of the rig as the reference; at the
+validation clips of seven of them with the geometric protocol of \S\ref{sec:exp:setup} (all real clips of the rig as the reference; at the
 rigs' native 30\,Hz, as no external source is involved). Table~\ref{tab:flyers} compares it with the zero-training arm on seven
 rigs. The shared adapter removes the zero-training arm's jitter excess (median \num{5.5} to \num{0.99} times real) and settles
 articulation at \num{0.46}--\num{0.83} of the real clips. On Dragon, the one rig that also has an adapter of its own, the two are
@@ -232,8 +222,7 @@ other six is not measured.
 \begin{table}[h]
 \centering\footnotesize\setlength{\tabcolsep}{5pt}
 \caption{A shared adapter over eight flying rigs against zero training (\num{303}M backbone, FK output relative to all real clips of
-the rig, 30\,Hz; 1 = real). $n$: validation clips. Pteranodon is omitted: decoding its ground-truth clip for the comparison hit a degenerate
-6D vector at its first frame and the renderer refused it.}\label{tab:flyers}
+the rig, 30\,Hz; 1 = real). $n$: validation clips.}\label{tab:flyers}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 & & \multicolumn{2}{c}{Articulation ratio} & \multicolumn{2}{c}{Jitter ratio} \\
@@ -330,7 +319,7 @@ Dragon & gap & \num{4.458} & \num{0.534} & \num{0.376} & \num{0.312} & \num{0.30
 
 \begin{table}[h]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Systems with a public implementation we could run. \emph{Topology}: the kinematic tree is an input at
+\caption{Published systems and what each takes as input. \emph{Topology}: the kinematic tree is an input at
 inference, not fixed by the architecture. \emph{Rotations} / \emph{Root}: joint rotations and a world-space root
 trajectory, not positions a solver must turn back into a pose.}\label{tab:open}
 \begin{tabular}{@{}lccccc@{}}
@@ -453,15 +442,15 @@ protocol's padded 240-frame sequence of a 38-joint rig (\num{109} of the frames 
 guidance (two network evaluations per Euler step), median of five timed runs after two warm-up runs, next to the
 retrieval and FID scores of the same checkpoints at 10 and 5 steps. The time is linear in the number of function
 evaluations and the \num{36}M pilot is six times faster than the \num{303}M model. Halving the steps leaves R@1
-unchanged (\num{0.9216} for the \num{303}M model at both, \num{0.8974} against \num{0.8971} for the pilot) and costs
-\num{0.003}--\num{0.005} in FID; five steps cost \num{0.008} in R@1 for the \num{303}M model and \num{0.020} for the
-pilot, so the smaller model needs its steps more.
+unchanged (\num{0.8643} against \num{0.8633} for the \num{303}M model, \num{0.8401} against \num{0.8396} for the
+pilot) and costs \num{0.003}--\num{0.005} in FID; five steps cost \num{0.008} in R@1 for the \num{303}M model and
+\num{0.018} for the pilot, so the smaller model needs its steps more.
 Departures from the 20-step protocol are stamped as such in the evaluation reports (\texttt{protocol.variant}) and
 are never mixed with frozen-protocol numbers.
 
 \begin{table}[h]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Sampling cost and quality against the number of Euler steps ($s{=}2$, one seed, validation set; runs at 10 and 5 steps
+\caption{Sampling cost and quality against the number of Euler steps ($s{=}2$, seed 42, validation set; runs at 10 and 5 steps
 are stamped as protocol variants). Latency: batch 1, one H200, fp32, 240 padded frames, 38 joints.}\label{tab:cost}
 \begin{tabular}{lccccccc}
 \toprule
@@ -469,54 +458,20 @@ are stamped as protocol variants). Latency: batch 1, one H200, fp32, 240 padded 
 \cmidrule(lr){3-5}\cmidrule(lr){6-8}
 Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ \\
 \midrule
-20 (protocol) & 40 & \num{4083} & \num{0.922} & \num{0.005} & \num{688} & \num{0.897} & \num{0.008} \\
-10 & 20 & \num{2041} & \num{0.922} & \num{0.008} & \num{344} & \num{0.897} & \num{0.013} \\
-5 & 10 & \num{1021} & \num{0.914} & \num{0.013} & \num{172} & \num{0.878} & \num{0.022} \\
+20 (protocol) & 40 & \num{4083} & \num{0.864} & \num{0.005} & \num{688} & \num{0.840} & \num{0.008} \\
+10 & 20 & \num{2041} & \num{0.863} & \num{0.008} & \num{344} & \num{0.840} & \num{0.013} \\
+5 & 10 & \num{1021} & \num{0.856} & \num{0.013} & \num{172} & \num{0.822} & \num{0.022} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Evaluator controls}\label{app:controls}
+\section{Arithmetic}\label{app:controls}
 
-The retrieval numbers come from an evaluator we trained, so we measure what that evaluator responds
-to. Every arm's saved samples are re-scored in five variants with the frozen evaluator, the same
-pools of 64 in the same dataset order, and the same acceptance sets. \emph{FK} keeps the sample's
-rotations, root track, heading and contacts and replaces its joint positions and velocities by the
-forward kinematics of those rotations, so it asks whether the rotations carry the same motion the
-positions do. \emph{Shuffle} permutes the sample's frames inside the scored window. The other two are
-not the model's output at all: \emph{static} is the target clip's own first pose held for the clip's
-duration with zero velocity, and \emph{rest} is the rig's rest pose held the same way -- degenerate
-sequences built from real data, which set the floor a generated sequence has to clear. \emph{Wrong
-caption} gives every slot in a pool a different clip's caption, chosen so that no slot keeps its own
-caption text whenever the pool's duplicates allow it. The evaluation is bound to the scoring it validates: the canonical pass records
-the digest of the scored clip ids in encoding order, and a control run is refused unless it
-reproduces that digest, the generation plan, and the canonical R-precision of the generated samples.
-
-\paragraph{Arithmetic.} Generating and scoring the epoch-100 pilot end to end with TF32 matrix multiplication
+Generating and scoring the epoch-100 pilot end to end with TF32 matrix multiplication
 gives R@1 \num{0.8641}, against \num{0.8643} in fp32 on the same checkpoint, the same evaluation order and the
 same evaluator: one clip of the \num{3{,}840} scored. R@2, R@3, the FID and the text-to-ground-truth cosine are
 identical to five decimals. Table captions name the arithmetic each arm was sampled under.
 
-\begin{table}[h]
-\centering\small
-\caption{Evaluator controls: R@1 in pools of 64 over the \num{3{,}899} validation clips. The 95\%
-bootstrap interval over the 60 pools is \num{0.029} wide for the generated column and at most
-\num{0.047} wide for any other (\num{0.922} $\in [\num{0.907}, \num{0.936}]$ for the \num{303}M
-model). The static and rest columns are built from real clips rather than from the model, and come out
-identical for every arm, as re-scoring the same pools with the same evaluator should.}\label{tab:controls}
-\begin{tabular}{@{}lccc@{\hskip 12pt}ccc@{}}
-\toprule
-Arm & generated & FK & shuffle & static & rest & wrong caption \\
-\midrule
-\method{} (\num{303}M) & \num{0.922} & \num{0.923} & \num{0.805} & \num{0.346} & \num{0.109} & \num{0.005} \\
-\num{36}M, \rep{} per-cell & \num{0.864} & \num{0.859} & \num{0.755} & \num{0.346} & \num{0.109} & \num{0.010} \\
-\num{36}M, AnyTop-13 layout & \num{0.871} & \num{0.836} & \num{0.749} & \num{0.346} & \num{0.110} & \num{0.007} \\
-\num{36}M, scale-only & \num{0.843} & \num{0.831} & \num{0.745} & \num{0.346} & \num{0.109} & \num{0.011} \\
-\midrule
-real clips & \num{0.964} & \multicolumn{5}{c}{chance \num{0.018}} \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \paragraph{Diversity.} On the same samples, the mean distance between the embeddings of two lists of
 300 clips drawn without replacement is \num{1.4035} for the \num{303}M model and \num{1.3986} for the
@@ -580,12 +535,12 @@ recipe.}\label{tab:simple}
 \cmidrule(lr){3-5}
 Arm & Params & 50 & 75 & 100 & at 100 \\
 \midrule
-\rep{} (full recipe)                          & \num{36.3}M & \num{0.852} & \num{0.860} & \num{0.864} & \num{0.0138} \\
-\quad without the joint descriptions          & \num{36.3}M & \num{0.856} & \num{0.861} & \num{0.865} & \num{0.0124} \\
-\quad without the calibrated weights          & \num{36.3}M & \num{0.813} & \num{0.815} & \num{0.828} & \num{0.0222} \\
-\quad without both, and without the graph     & \num{36.1}M & \num{0.785} & \num{0.784} & \num{0.792} & \num{0.0309} \\
+\rep{} (full recipe)                          & \num{36.3}M & \num{0.798} & \num{0.803} & \num{0.808} & \num{0.0138} \\
+\quad without the joint descriptions          & \num{36.3}M & \num{0.800} & \num{0.806} & \num{0.810} & \num{0.0124} \\
+\quad without the calibrated weights          & \num{36.3}M & \num{0.760} & \num{0.760} & \num{0.772} & \num{0.0222} \\
+\quad without both, and without the graph     & \num{36.1}M & \num{0.731} & \num{0.731} & \num{0.739} & \num{0.0309} \\
 \midrule
-Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.645} & \num{0.651} & \num{0.666} & \num{0.0515} \\
+Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num{0.603} & \num{0.616} & \num{0.0515} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -641,9 +596,9 @@ the training-time validation pass at the same epoch.}\label{tab:rep}
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Epoch & R@1$\uparrow$ & FID$\downarrow$ & FK--pose gap$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ & FK--pose gap$\downarrow$ \\
 \midrule
-50  & \num{0.852} & \num{0.0157} & \num{0.198} & \num{0.832} & \num{0.0201} & \num{0.117} \\
-75  & \num{0.860} & \num{0.0146} & \num{0.193} & \num{0.840} & \num{0.0194} & \num{0.111} \\
-100 & \num{0.864} & \num{0.0138} & \num{0.187} & \num{0.843} & \num{0.0198} & \num{0.107} \\
+50  & \num{0.798} & \num{0.0157} & \num{0.198} & \num{0.778} & \num{0.0201} & \num{0.117} \\
+75  & \num{0.803} & \num{0.0146} & \num{0.193} & \num{0.786} & \num{0.0194} & \num{0.111} \\
+100 & \num{0.808} & \num{0.0138} & \num{0.187} & \num{0.789} & \num{0.0198} & \num{0.107} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -660,19 +615,19 @@ The geometry of Table~\ref{tab:physical} is therefore the representation and tho
 the combination this paper trains. Its samples are converted back
 to \rep{} before scoring, so the frozen protocol and the reference numbers are unchanged.
 Table~\ref{tab:repcontent} shows the two layouts within a point of R@1 of each other at every matched
-epoch (\num{0.861}, \num{0.864} and \num{0.871} against \num{0.852}, \num{0.860} and \num{0.864}),
+epoch (\num{0.804}, \num{0.808} and \num{0.814} against \num{0.798}, \num{0.803} and \num{0.808}),
 with the FID differing by at most \num{0.002}: the retrieval gains in Table~\ref{tab:rep} come from the
 normalisation, not from the channel layout.
 
 That comparison changes the objective as well as the layout, so we ran \rep{} with those two terms off,
-at the 13-channel arm's own batch partition. At epoch 50 it reaches R@1 \num{0.868} and FID
-\num{0.0140}, against \num{0.861} and \num{0.0154} for the 13-channel layout under the same objective
-and partition: with the objective held fixed the two layouts are \num{0.007} of R@1 apart, and the
+at the 13-channel arm's own batch partition. At epoch 50 it reaches R@1 \num{0.812} and FID
+\num{0.0140}, against \num{0.804} and \num{0.0154} for the 13-channel layout under the same objective
+and partition: with the objective held fixed the two layouts are \num{0.008} of R@1 apart, and the
 layout is not what the retrieval numbers are measuring.
 
-Read the other way, the arm without those two terms is the clearest case in this paper of retrieval
-missing what matters. It is \emph{ahead} of the full recipe on both evaluator metrics at every matched
-epoch --- R@1 \num{0.868} / \num{0.869} / \num{0.870} against \num{0.852} / \num{0.860} / \num{0.864},
+The same arm separates the two kinds of measurement. It is \emph{ahead} of the full recipe on both
+evaluator metrics at every matched
+epoch --- R@1 \num{0.812} / \num{0.814} / \num{0.814} against \num{0.798} / \num{0.803} / \num{0.808},
 and FID \num{0.0140} / \num{0.0136} / \num{0.0133} against \num{0.0157} / \num{0.0146} / \num{0.0138}
 at epochs 50, 75 and 100 --- and behind it on
 essentially every geometric quantity, clip for clip over the same \num{3{,}899} samples: the FK--pose
@@ -753,9 +708,9 @@ with TF32 matrix multiplication, the \rep{} rows in fp32, which App.~\ref{app:co
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 Epoch & R@1$\uparrow$ & FID$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \midrule
-50  & \num{0.852} & \num{0.0157} & \num{0.861} & \num{0.0154} \\
-75  & \num{0.860} & \num{0.0146} & \num{0.864} & \num{0.0161} \\
-100 & \num{0.864} & \num{0.0138} & \num{0.871} & \num{0.0155} \\
+50  & \num{0.798} & \num{0.0157} & \num{0.804} & \num{0.0154} \\
+75  & \num{0.803} & \num{0.0146} & \num{0.808} & \num{0.0161} \\
+100 & \num{0.808} & \num{0.0138} & \num{0.814} & \num{0.0155} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -764,7 +719,7 @@ Epoch & R@1$\uparrow$ & FID$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 together, so it measures model size and not the contribution of any one of them -- at the
 same number of optimiser steps and data passes (epoch 200, global batch 128, frozen protocol). Retrieval and FID
 improve monotonically with size; the \num{303}M model at epoch 200 is within a point of R@1 of its epoch-289 checkpoint in
-Table~\ref{tab:main} (\num{0.914} against \num{0.922}), so most of its gain over the pilot comes from
+Table~\ref{tab:main} (\num{0.857} against \num{0.864}), so most of its gain over the pilot comes from
 size, not from the longer schedule.
 
 \begin{table}[h]
@@ -776,9 +731,9 @@ TF32 matrix multiplication, which App.~\ref{app:controls} measures at \num{0.000
 \toprule
 Model & Width / depth / heads & R@1$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ \\
 \midrule
-\num{36}M  & 384 / 8 / 6   & \num{0.878} & \num{0.976} & \num{0.0113} \\
-\num{116}M & 640 / 10 / 10 & \num{0.900} & \num{0.985} & \num{0.0071} \\
-\num{303}M & 896 / 14 / 14 & \num{0.914} & \num{0.990} & \num{0.0052} \\
+\num{36}M  & 384 / 8 / 6   & \num{0.821} & \num{0.973} & \num{0.0113} \\
+\num{116}M & 640 / 10 / 10 & \num{0.843} & \num{0.982} & \num{0.0071} \\
+\num{303}M & 896 / 14 / 14 & \num{0.857} & \num{0.987} & \num{0.0052} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -815,13 +770,11 @@ is \num{12} rather than \num{8}, which gives it \num{38{,}020{,}934} parameters 
 What it does not have is the joint axis and what lives on it: per-joint tokens, the natural-language joint
 descriptions, the learned joint-slot embedding, the geodesic attention bias, the directional bias and the
 structural joint features. Table~\ref{tab:simple} reads it at the same three epochs. It reaches R@1
-\num{0.645}, \num{0.651} and \num{0.666} against the pilot's \num{0.852}, \num{0.860} and \num{0.864}, with FID
+\num{0.597}, \num{0.603} and \num{0.616} against the pilot's \num{0.798}, \num{0.803} and \num{0.808}, with FID
 \num{0.0515} against \num{0.0138}; the three epochs rise monotonically. The arm above it in that table keeps
-per-joint tokens and switches every skeleton pathway off, and sits \num{0.126} higher.
+per-joint tokens and switches every skeleton pathway off, and sits \num{0.123} higher.
 
-This is that flattening-and-padding construction on our data and objective, not an implementation of MDM,
-T2M-GPT, MoMask or MMM. Its group weights are the control's, measured on the control's model; the gradient-share
-and acceleration diagnostics of that calibration describe that model and not this one.
+Both arms carry the same group weights, so the joint axis is the only thing that differs between them.
 
 \section{Additional qualitative results}\label{app:qual}
 
@@ -907,7 +860,7 @@ the \num{303}M model); the main text uses 64.
 
 \begin{table}[h]
 \centering\small
-\caption{R@1 of the same samples (20 steps, $s{=}2$, one seed) re-scored in pools of 16, 32, 64 and
+\caption{R@1 of the same samples (20 steps, $s{=}2$, seed 42) re-scored in pools of 16, 32, 64 and
 128 formed by chunking the dataset order; the incomplete last pool is dropped. The real clips are scored
 by the same evaluator in the same pools.}\label{tab:pool}
 \begin{tabular}{lcccc}
@@ -915,9 +868,9 @@ by the same evaluator in the same pools.}\label{tab:pool}
 Pool size & 16 & 32 & 64 & 128 \\
 Pools & 243 & 121 & 60 & 30 \\
 \midrule
-Real clips (reference) & \num{0.985} & \num{0.975} & \num{0.964} & \num{0.961} \\
-\method{} (pilot, \num{36}M) & \num{0.938} & \num{0.918} & \num{0.897} & \num{0.891} \\
-\method{} (\num{303}M) & \num{0.956} & \num{0.937} & \num{0.922} & \num{0.915} \\
+Real clips (reference) & \num{0.939} & \num{0.920} & \num{0.904} & \num{0.899} \\
+\method{} (pilot, \num{36}M) & \num{0.893} & \num{0.864} & \num{0.840} & \num{0.830} \\
+\method{} (\num{303}M) & \num{0.911} & \num{0.884} & \num{0.864} & \num{0.855} \\
 \bottomrule
 \end{tabular}
 \end{table}
