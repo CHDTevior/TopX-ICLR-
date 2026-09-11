@@ -818,8 +818,8 @@ anchoring the root: every frame keeps the height the model produced, and the roo
 through the strip. Each pair shares the rig, the adapter, the per-cell statistics, the rest-pose
 demonstration, the sampler and its seed, and differs only in the prompt. On the Dragon the dive spans
 \num{9.22} bone lengths of root height against \num{2.08} for level flight; on the Spider, whose root stays
-where the prompt leaves it, the joints move \num{0.99} bone lengths per second relative to the root while it
-scrambles and \num{0.20} while it lies injured.
+where the prompt leaves it, the joints move \num{0.88} bone lengths per second relative to the root while it
+scrambles and \num{0.16} while it lies injured.
 
 \begin{figure}[p]
 \centering
@@ -827,10 +827,8 @@ scrambles and \num{0.20} while it lies injured.
 \caption{Two prompts on one rig, in world coordinates. Five frames at equal times of one held-out clip
 (light first, dark last) with the per-rig adapter of Table~\ref{tab:lora}. Every frame keeps the height the
 model produced; the horizontal placement is the panel's own time grid, the clay line is the root's height
-profile through the five frames and the grey line is the floor beneath the root. Skeletons are the directly
-predicted joint positions; the root track is shared by both decodings, so the height ranges quoted in the text
-are the same read off the deployable forward-kinematic output (\num{9.21} against \num{2.08} bone lengths on
-either), and only the limbs differ between the two. The quoted sentence is the conditioning prompt; the two rows of a rig differ in
+profile through the five frames and the grey line is the floor beneath the root. Skeletons are the deployable
+output: the forward kinematics of the predicted rotations. The quoted sentence is the conditioning prompt; the two rows of a rig differ in
 nothing else and are drawn at one scale.}\label{fig:tb_world}
 \end{figure}
 
