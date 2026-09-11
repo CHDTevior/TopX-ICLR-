@@ -28,7 +28,7 @@ ablations. Both train at global batch 128 with the calibrated objective, the mai
 (\S\ref{sec:method:sampling}); each clip is generated at the length of the real clip, capped at
 240 frames, at seed 42. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion
 R-precision at $K{=}1,2,3$ in pools of 64 formed by chunking the dataset order (a retrieved motion
-is correct if it is the caption's clip or one the corpus marks as equivalent to it), the FID on the evaluator's
+is correct if it is the caption's own clip), the FID on the evaluator's
 $\ell_2$-normalised embeddings, and the text--motion matching score, each next to the evaluator's
 score on the real clips of the same pools (a reference, not a bound). Because a skeleton-aware evaluator exists
 only for the library rigs, the Truebones experiments are scored geometrically, in world space,
@@ -144,10 +144,10 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 The ablations share the pilot's recipe and checkpoint epoch; App.~\ref{app:ablation_notes} collects them
-with the notes. Flattening the joint axis into one token per frame costs \num{0.192}--\num{0.202} of R@1 and
+with the notes. Flattening the joint axis into one token per frame costs \num{0.192}--\num{0.201} of R@1 and
 multiplies the FID by \num{3.7}, everything else matched and \num{5}\% more parameters on the flat side
 (Table~\ref{tab:simple}). Keeping the axis and removing what this paper puts on it costs
-\num{0.067}--\num{0.070}: the calibrated group weights carry \num{0.036}--\num{0.048}, the geodesic and
+\num{0.067}--\num{0.072}: the calibrated group weights carry \num{0.036}--\num{0.043}, the geodesic and
 direction biases and the structural features the rest, the joint descriptions none. Removing the
 acceleration-matching term changes neither retrieval nor the FK--pose gap, which is not a test of the temporal
 smoothness it is there for (Table~\ref{tab:ablation}). Per-cell mean and standard deviation are worth about two points of R@1 over a per-rig scale alone and \num{22}--\num{30}\% of the FID at every matched

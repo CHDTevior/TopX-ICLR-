@@ -161,8 +161,7 @@ trained (App.~\ref{app:extend_more}).
 \paragraph{Evaluator.} Retrieval metrics require a text--motion embedding, and existing ones are
 tied to one skeleton. We train two towers into a shared 512-d space: a frozen DistilBERT text tower
 with a trainable pooling head, and a graph-aware motion tower (6 graph layers, 4 temporal layers)
-over the \rep{} channels without contact, with a symmetric InfoNCE objective whose false-negative
-mask ties together the clips the corpus marks as equivalent. The
+over the \rep{} channels without contact, with a symmetric InfoNCE objective. The
 evaluator sees only real data, never generated samples, and shares no weights with the generator.
 
 \paragraph{Protocol.} Text$\to$motion R@1/2/3 in pools of 64, matching score and FID in the

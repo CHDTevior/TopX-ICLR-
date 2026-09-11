@@ -483,15 +483,7 @@ says little between two healthy ones, and it is not comparable with values publi
 evaluators. Multimodality is not reported: it needs a second generation pass per caption, outside the
 frozen protocol these numbers come from.
 
-Two readings matter. The FK column is the mechanism: re-encoding the sample through forward kinematics
-of its own rotations costs \num{0.005} of R@1 on \rep{} and \num{0.035} on the 13-channel layout, at
-the same model size, partition and epoch -- the two redundant channels of \rep{} carry the same motion,
-those of the 13-channel layout do not, which is what the geometry of Table~\ref{tab:physical} measures
-directly --- for the layout and the two world-coordinate terms together, since the 13-channel arm trains
-without them. On the \num{303}M model the re-encoded sample scores \num{0.001} \emph{above} the direct
-one, inside the interval. The static column is the shortcut: a body of the right species, frozen in the
-clip's first pose, already retrieves its caption in a third of the pools, which is the part of every
-retrieval number in this paper that is not motion. Uncertainty for the FID is reported as the FID between two halves of the real validation set
+Uncertainty for the FID is reported as the FID between two halves of the real validation set
 (\num{0.015} $\pm$ \num{0.001} over 20 splits), which is the estimator's resolution at half the
 sample size, rather than as a bootstrap interval: FID is a biased nonlinear estimator and its
 percentile interval need not contain the population value.
@@ -503,11 +495,11 @@ percentile interval need not contain the population value.
 rate, schedule and budget, read at the same three epochs under the frozen protocol.
 
 The arm \emph{without the joint descriptions} zeroes and freezes the description projection and keeps
-everything else. It is level with the full recipe at all three epochs (\num{+0.004}, \num{+0.001},
-\num{+0.001} of R@1) and its FID is \num{10}--\num{16}\% lower.
+everything else. It is level with the full recipe at all three epochs (\num{+0.002}, \num{+0.003},
+\num{+0.002} of R@1) and its FID is \num{10}--\num{16}\% lower.
 
 The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
-at uniform weights. It loses \num{0.036}--\num{0.045} of R@1 and its FID rises by \num{50}--\num{60}\%, and
+at uniform weights. It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{50}--\num{60}\%, and
 it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
@@ -517,7 +509,7 @@ structural features carry.
 
 The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
 objective, weights, schedule and budget, with the joint axis flattened into one token per frame. It loses
-\num{0.198}--\num{0.208} of R@1 and its FID is \num{3.7} times the full recipe's, and it is \num{0.126}
+\num{0.192}--\num{0.201} of R@1 and its FID is \num{3.7} times the full recipe's, and it is \num{0.123}
 below the arm that keeps per-joint tokens with every skeleton pathway switched off.
 
 \begin{table}[h]
@@ -548,16 +540,16 @@ Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num
 \begin{table}[h]
 \centering\small
 \caption{Ablations on the \num{36}M pilot at matched optimiser steps (epoch-200 checkpoints;
-validation loss, FK--pose gap, R@1 and FID on the validation set). The variant without the
+validation loss, FK--pose gap, R@1 in pools of 64 and FID on the validation set). The variant without the
 acceleration term optimises a different objective, so its validation loss is not listed.}\label{tab:ablation}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Variant & Val.\ loss$\downarrow$ & FK--pose gap (bl)$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \midrule
-Full recipe (rest demo, calibrated, $\mathbf{x}$-pred, qk-norm) & \num{0.247} & \num{0.171} & \num{0.878} & \num{0.011} \\
-Motion demonstration in place of the rest frame (App.~\ref{app:demo64}) & \num{0.270} & \num{0.202} & \num{0.878} & \num{0.010} \\
-Without the acceleration-matching term & -- & \num{0.171} & \num{0.877} & \num{0.011} \\
+Full recipe (rest demo, calibrated, $\mathbf{x}$-pred, qk-norm) & \num{0.247} & \num{0.171} & \num{0.821} & \num{0.011} \\
+Motion demonstration in place of the rest frame (App.~\ref{app:demo64}) & \num{0.270} & \num{0.202} & \num{0.822} & \num{0.010} \\
+Without the acceleration-matching term & -- & \num{0.171} & \num{0.822} & \num{0.011} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -569,8 +561,8 @@ faster in loss but concentrated nearly all supervision at $t\ge0.8$ and visibly 
 form, so they were rolled back on visual grounds.
 
 \paragraph{Acceleration-matching term.} The pilot trained without the acceleration term of
-\S\ref{sec:method:objective} reaches the same FK--pose gap (\num{0.171} bone lengths), R@1 (\num{0.877}
-against \num{0.878}) and FID (\num{0.011}) at epoch 200 as the full recipe; the term was introduced
+\S\ref{sec:method:objective} reaches the same FK--pose gap (\num{0.171} bone lengths), R@1 (\num{0.822}
+against \num{0.821}) and FID (\num{0.011}) at epoch 200 as the full recipe; the term was introduced
 for temporal smoothness, which these three numbers do not measure.
 
 \paragraph{Normalisation of the representation.} \rep{} is normalised per rig and per cell (joint,
@@ -829,7 +821,7 @@ re-calibrated for this condition and returned the same weights, so the two valid
 same scale). At the same optimiser step (\num{115{,}600}, epoch 200, scored on
 the same GPUs) the motion demonstration is worse where the two representations of a pose have to agree
 --- validation loss \num{0.270} against \num{0.247} and FK--pose gap \num{0.202} against \num{0.171}
-bone lengths --- equal in retrieval (R@1 \num{0.878} for both) and slightly better in FID
+bone lengths --- equal in retrieval (R@1 \num{0.821} against \num{0.822}) and slightly better in FID
 (\num{0.010} against \num{0.011}). The attribution of the demonstration pathway is an order of
 magnitude smaller than with the rest frame ($3{\times}10^{-4}$ against $5{\times}10^{-3}$), and the
 sequence is $26\%$ longer. On the four Truebones rigs of \S\ref{sec:exp:extend} neither condition wins:
