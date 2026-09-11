@@ -165,8 +165,8 @@ data view of a new rig is built by the corpus script with three additions: joint
 deformation-bone convention of the training library (end markers, cosmetic and helper joints
 dropped by name or description, never the root, heading carrier, trunk or wing joints, and only
 leaf-closed subtrees so no forward kinematics is re-run); captions are rewritten to the corpus style
-``The $\langle$species$\rangle$ $\langle$action$\rangle$''; and the train/validation split is made
-by source animation so that no clip straddles it. Training follows the backbone recipe with the
+``The $\langle$species$\rangle$ $\langle$action$\rangle$''; and the clips are split 80/20 into
+train and validation. Training follows the backbone recipe with the
 learning rate scaled linearly to the batch, one pass over every clip per epoch, 300--900 epochs and
 a shortened forward-kinematics warm-up. A single adapter can also be shared by a group of rigs, which removes the
 unadapted model's jitter excess on all of them and, on the one rig where both were trained, comes close to
@@ -185,7 +185,7 @@ respective totals); Dragon uses rank 128 (\num{53.6}M, $15\%$) and three times t
 \begin{table}[h]
 \centering\small
 \caption{Per-rig adapter settings. Clips are the usable Truebones clips after the source audit,
-split by source animation.}\label{tab:lora_hp}
+split 80/20.}\label{tab:lora_hp}
 \begin{tabular}{lcccccc}
 \toprule
 Rig & Joints & Train / val clips & Batch & Learning rate & Rank & Epochs \\
@@ -889,10 +889,9 @@ to exist at test time, which a rest pose always does. We therefore keep the rest
 
 \section{Validation split}\label{app:split}
 
-The library is split per rig: the rig's clips are sorted by identifier and permuted with one
-seeded generator (\texttt{numpy} default generator, seed 0) shared by all rigs in name order, and the
-first \num{5}\% of the permutation (at least one clip, none for a rig with a single clip) become
-validation, so that every rig with enough clips is represented in both parts. The split is fixed before any model is trained and is shared by
+The library is split per rig: \num{5}\% of each rig's clips (at least one, none for a rig with a
+single clip) are held out for validation, so that every rig with enough clips is represented in both
+parts. The split is fixed before any model is trained and is shared by
 the evaluator and by every generator and adapter in this paper; checkpoints are selected on the
 validation loss. Validation holds \num{3{,}899} clips over \num{311} rigs and training
 \num{73{,}995} clips. Retrieval pools are formed by chunking the validation set in dataset order

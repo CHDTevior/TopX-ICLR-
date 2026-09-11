@@ -153,7 +153,7 @@ paths (joint-semantics projection, caption MLP, structural MLP, AdaLN), leaving 
 projections and the timestep MLP frozen; the adapters hold 26.8M (r64) or 53.6M (r128) parameters
 and are folded back into the weights at export, so every consumer loads a plain checkpoint. The
 new rig's data view is built by the corpus script (joint pruning to the deformation-bone convention,
-corpus-style captions, a split by source animation) and the adapter is trained with the backbone
+corpus-style captions, an 80/20 split) and the adapter is trained with the backbone
 recipe for 300--900 epochs (App.~\ref{app:lora}); a single adapter shared by a group of rigs
 removes the same jitter excess on all of them, and matches a per-rig adapter on the one rig where both were
 trained (App.~\ref{app:extend_more}).
@@ -163,7 +163,7 @@ trained (App.~\ref{app:extend_more}).
 tied to one skeleton. We train two towers into a shared 512-d space: a frozen DistilBERT text tower
 with a trainable pooling head, and a graph-aware motion tower (6 graph layers, 4 temporal layers)
 over the \rep{} channels without contact, with a symmetric InfoNCE objective whose false-negative
-mask ties together clips of the same motion, the same source animation and the same caption. The
+mask ties together the clips the corpus marks as equivalent. The
 evaluator sees only real data, never generated samples, and shares no weights with the generator.
 
 \paragraph{Protocol.} Text$\to$motion R@1/2/3 in pools of 64, matching score and FID in the

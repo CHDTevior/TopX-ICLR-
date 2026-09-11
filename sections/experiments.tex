@@ -16,8 +16,7 @@ Validation holds \num{3{,}899} clips over \num{311} rigs (\num{5}\% of every rig
 one seeded permutation per rig; App.~\ref{app:split}). For rigs outside the library we use the
 Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs after conversion to \rep{}
 with the same pipeline (\num{802} of them carry a caption). Each Truebones rig is split
-$80/20$ into train and validation clips by source animation, so that a clip and its cut
-neighbours never straddle the split.
+$80/20$ into train and validation clips.
 
 \paragraph{Models.} The main model has \num{303}M parameters (14 blocks, width 896, 14 heads);
 a \num{36}M pilot (8 blocks, width 384, 6 heads) shares every other setting and is used for
@@ -29,8 +28,7 @@ ablations. Both train at global batch 128 with the calibrated objective, the mai
 (\S\ref{sec:method:sampling}); each clip is generated at the length of the real clip, capped at
 240 frames, with one seed. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion
 R-precision at $K{=}1,2,3$ in pools of 64 formed by chunking the dataset order (a retrieved motion
-is correct if it is the caption's clip, another export of the same source motion, or a clip with an
-identical caption), the FID on the evaluator's
+is correct if it is the caption's clip or one the corpus marks as equivalent to it), the FID on the evaluator's
 $\ell_2$-normalised embeddings, and the text--motion matching score, each next to the evaluator's
 score on the real clips of the same pools (a reference, not a bound). Because a skeleton-aware evaluator exists
 only for the library rigs, the Truebones experiments are scored geometrically, in world space,
