@@ -109,6 +109,9 @@ FK--pose gap before and after adaptation next to the articulation and jitter of 
 twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, most on the two rigs farthest
 from the library, and the seen-clip reference sits at $0.08$--$0.21$. Most of that is bought early: the jitter
 is gone within 50--100 epochs and the gap plateaus by 100--150 (Dragon: 450, App.~\ref{app:extend_more}).
+Computing the statistics from the adaptation clips alone, so that nothing about the evaluation clips reaches the
+model, leaves the picture unchanged: the gap still collapses to $0.25$--$0.36$ and the jitter excess still goes
+(Table~\ref{tab:supportonly}).
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}

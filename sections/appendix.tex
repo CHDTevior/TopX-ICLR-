@@ -254,6 +254,39 @@ Parrot & 3 & \num{1.84} & \num{0.55} & \num{7.14} & \num{1.14} \\
 
 
 
+\paragraph{Statistics from the adaptation clips alone.} The per-cell statistics a new rig arrives with are
+measured over all of its clips in Table~\ref{tab:lora}, evaluation clips included. Table~\ref{tab:supportonly}
+re-runs both arms with statistics measured from the rig's \num{8}--\num{26} adaptation clips only: a sibling view
+that declares those statistics, a calibration measured on it, the adapter re-trained under the published recipe,
+and both arms re-sampled and scored by the protocol of \S\ref{sec:exp:setup}. The adapter still brings the two
+channels together and still removes the jitter excess; its gap moves by at most \num{0.13} bone lengths, and the
+articulation and jitter ratios by less than the difference between rigs.
+
+\begin{table}[h]
+\centering\footnotesize
+\caption{Statistics from the adaptation clips only (\num{303}M backbone, same recipe, same protocol as
+Table~\ref{tab:lora}; released values in brackets). Gap in bone lengths; articulation and jitter of the sampled FK
+output relative to all real clips of the rig (1 = real). Spider's real root is static, so its root-speed ratio is
+undefined.}\label{tab:supportonly}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Rig & Arm & FK--pose gap (bl)$\downarrow$ & Articulation ratio & Jitter ratio \\
+\midrule
+Buffalo (30 j.) & zero & \num{0.722} (\num{0.797}) & \num{1.34} (\num{1.45}) & \num{3.00} (\num{3.32}) \\
+                & LoRA & \num{0.311} (\num{0.349}) & \num{0.34} (\num{0.30}) & \num{0.39} (\num{0.33}) \\
+\midrule
+Gazelle (29 j.) & zero & \num{0.579} (\num{0.574}) & \num{5.40} (\num{5.39}) & \num{12.97} (\num{13.17}) \\
+                & LoRA & \num{0.250} (\num{0.227}) & \num{0.76} (\num{0.77}) & \num{0.79} (\num{0.86}) \\
+\midrule
+Dragon (95 j.)  & zero & \num{4.564} (\num{4.458}) & \num{1.08} (\num{1.02}) & \num{2.75} (\num{2.53}) \\
+                & LoRA & \num{0.363} (\num{0.304}) & \num{0.56} (\num{0.49}) & \num{0.71} (\num{0.52}) \\
+\midrule
+Spider (68 j.)  & zero & \num{2.135} (\num{1.896}) & \num{2.99} (\num{2.87}) & \num{6.67} (\num{6.49}) \\
+                & LoRA & \num{0.364} (\num{0.232}) & \num{0.28} (\num{0.24}) & \num{0.27} (\num{0.20}) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{How long to train the adapter.} Table~\ref{tab:lora_len} re-trains the four adapters of
 Table~\ref{tab:lora} with a snapshot every 50 epochs (Dragon: every 150 of 900) and scores every snapshot under the
 protocol of \S\ref{sec:exp:setup}. The jitter excess of the zero-training arm is gone within 50--100 epochs on every
