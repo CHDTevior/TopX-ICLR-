@@ -60,8 +60,9 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
   prepended as one clean frame, natural-language descriptions of the joints (``left front lower
   leg'', ``tail segment 3'') are added to their tokens, and spatial attention is biased by tree
   distance. The network holds no per-skeleton parameter: joints occupy positions in a learned table
-  of 160 slots in the order the rig lists them, and what a slot \emph{is} comes from its
-  description, so a new rig is a new set of inputs.
+  of 160 slots in the order the rig lists them, and a slot carries no rig-specific weight, so a new rig
+  is a new set of inputs. On the library rigs the descriptions are worth nothing measurable
+  (\S\ref{sec:exp:ablation}).
 \item \textbf{A calibrated grouped flow-matching objective and a recipe that trains at 0.3B}
   (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies so that
   the root, contact and trajectory channels of a large rig are not drowned by its many body
