@@ -764,7 +764,8 @@ descriptions, the learned joint-slot embedding, the geodesic attention bias, the
 structural joint features. Table~\ref{tab:simple} reads it at the same three epochs. It reaches R@1
 \num{0.597}, \num{0.603} and \num{0.616} against the pilot's \num{0.798}, \num{0.803} and \num{0.808}, with FID
 \num{0.0515} against \num{0.0138}; the three epochs rise monotonically. The arm above it in that table keeps
-per-joint tokens and switches every skeleton pathway off, and sits \num{0.123} higher.
+per-joint tokens and switches every skeleton pathway off; it also runs the objective at uniform weights, so the
+two differ in the weighting as well as in the joint axis.
 
 Both arms carry the same group weights, so the joint axis is the only thing that differs between them.
 
