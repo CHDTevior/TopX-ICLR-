@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:intro}
 
 Text-to-motion generation has made striking progress, but almost all of it on one body. The standard
-pipeline---a diffusion model, a motion tokenizer or a latent generator trained on
+pipeline---a diffusion model, a motion tokeniser or a latent generator trained on
 HumanML3D~\citep{guo2022generating}---assumes a fixed kinematic tree, typically the 22-joint SMPL
 skeleton, and bakes it into every layer: the input projection is sized for that joint count and any
 codebook is learned for one morphology. The result is a
@@ -11,18 +11,18 @@ family of models that animate a human well and cannot animate anything else.
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_align/figure1.pdf}
 \caption{\method{} overview. A rig enters as data: each joint of each frame is one token of 17 standardised channels, and the
-sequence is the rig's clean rest pose followed by 240 noise-mixed target frames. A token is the sum of six terms (band~2). The caption
+sequence is the rig's clean rest pose followed by 240 noise-mixed target frames. A token is the sum of six terms (panel~2). The caption
 and the flow time form $\mathbf c$, which sets the shift, scale and gate of every sub-layer (AdaLN) and is the caption's only route
 into the network. Fourteen blocks alternate temporal and spatial attention, the latter biased by tree distance; the head predicts the
 clean motion $\hat{\mathbf x}_1$, and 20 Euler steps with caption guidance $s{=}2$ update the target frames only; rotations are then
-forward-kinematised on the rig and skinned. An unseen rig takes the same pass, optionally with a ten-clip LoRA. All glyphs are the
+forward-kinematised on the rig and skinned. An unseen rig takes the same pass, optionally with a ten-clip LoRA. All skeleton drawings are the
 model's own output on a moose run-to-walk clip.}\label{fig:teaser}
 \end{figure}
 
 \method{} (Figure~\ref{fig:teaser}) drops that assumption: a rig is data, not architecture.
 The applications that most need generative motion---games, film previsualisation, virtual
 production---are populated by characters that are not human, and a studio does not have one skeleton
-but hundreds, each authored by a rigger with its own joint count, naming scheme and helper bones. Our corpus is a faithful sample of that reality: \num{311} production animal rigs
+but hundreds, each authored by a rigger and each with its own joint count, naming scheme and helper bones. Our corpus is a faithful sample of that reality: \num{311} production animal rigs
 with \num{34} to \num{102} deformation joints (median 64), \num{108} distinct kinematic trees and
 \num{77{,}894} captioned clips (\num{6.2}M frames).\footnote{The clips and their captions follow the
 AniMo4D annotation set of \citet{wang2025animo}; the rigs are re-exported with deformation bones only,
@@ -35,7 +35,7 @@ has to be generated for the target body, and it has to come out as rotations the
 \paragraph{Our position.} A generative model should treat the skeleton as \emph{input}, not as
 architecture: told the kinematic tree, the rest pose and what each joint \emph{is}, the network needs
 no per-skeleton parameter, and adding a character becomes a data question. Generation across skeletons
-has been shown without text on the Truebones zoo~\citep{gat2025anytop}, and with text by
+has been shown without text by AnyTop~\citep{gat2025anytop} on the Truebones zoo, and with text by
 OmniZoo~\citep{chen2025omnizoo} on 140 species and by G-MDM~\citep{lee2025dragon} on Truebones with
 joint rotations but no root translation. We study
 joint-space rotation and
@@ -53,21 +53,21 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
   the kinematic tree at inference (Table~\ref{tab:open}).
 \item \textbf{Any rigged animation becomes training data, and any rig becomes an input}
   (\S\ref{sec:method:rep}, \S\ref{sec:method:model}). \rep{} converts a clip from its kinematic tree, rest
-  pose and motion alone---no template, retargeting, tokenizer or inverse kinematics---and standardising
+  pose and motion alone---no template, retargeting, tokeniser or inverse kinematics---and standardising
   every (rig, joint, channel) cell by its own statistics is what lets rigs of very different proportions
-  share one network: 1.7--2.0 points of R@1 and 22--30\% of the FID over a per-rig scale at each of three
+  share one network: 1.7--2.0 points of R@1 and a 22--30\% lower FID than a per-rig scale at each of three
   matched epochs. The rig itself enters as a prompt---its rest pose, natural-language descriptions of its
   joints and its tree distances---so the network holds no per-skeleton parameter and reads no bone name: a
   new rig, under any naming convention, is a new set of inputs. Every joint carries both positions and
-  rotations, so a sample decodes two ways and their agreement is a number this paper reports throughout.
+  rotations, so a sample decodes two ways and their agreement is a quantity this paper reports throughout.
 \item \textbf{An objective and a recipe under which this heterogeneity trains, up to 0.3B}
   (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies, so body rotations do not
   drown the root, contact and trajectory channels; calibrated rather than
   uniform weights are worth \num{0.036}--\num{0.043} of R@1 and reduce the FID by \num{38}\%. Query--key normalisation
-  is what makes the 0.3B model trainable, where every attempt without it diverged, and retrieval and FID
+  is what makes the 0.3B model trainable: every attempt without it diverged; retrieval and FID
   improve monotonically from \num{36}M to \num{303}M parameters at a matched number of optimiser steps.
-\item \textbf{A rig the model has never seen generates with no weight update, and a few clips bring its two output channels into agreement}
-  (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). A rig outside the library generates through the same
+\item \textbf{A rig the model has never seen is served with no weight update, and a few clips bring its two output channels into agreement}
+  (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). Motion for a rig outside the library is generated by the same
   forward pass with no training of any kind; a per-rig low-rank adapter on eight to twenty-six clips brings
   its rotation and position channels into agreement on bodies far from the training distribution---a
   winged dragon from \num{4.46} to \num{0.30} bone lengths---and one adapter shared across eight flying
