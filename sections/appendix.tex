@@ -833,9 +833,15 @@ demonstration clip is an unrelated motion of the same rig, everything it carries
 is already stated by the caption, and the network learns to ignore it; a moving demonstration also has
 to exist at test time, which a rest pose always does. We therefore keep the rest frame.
 
-\section{Validation split}\label{app:split}
+\section{Validation split and evaluator}\label{app:split}
 
-The library is split per rig: \num{5}\% of each rig's clips (at least one, none for a rig with a
+\paragraph{Evaluator.} The two towers of \S\ref{sec:method:eval} share a 512-d embedding space. The text tower
+is a frozen DistilBERT with a trainable pooling head; the motion tower is graph-aware, with 6 graph layers and 4
+temporal layers over the 16 \rep{} channels other than the contact flag; the objective is a symmetric InfoNCE
+over real clips and their captions. As a control, scoring the validation clips against shuffled captions gives
+R@1 \num{0.035} in pools of 32, against a chance level of \num{0.031}.
+
+\paragraph{Split.} The library is split per rig: \num{5}\% of each rig's clips (at least one, none for a rig with a
 single clip) are held out for validation, so that every rig with enough clips is represented in both
 parts. The split is fixed before any model is trained and is shared by
 the evaluator and by every generator and adapter in this paper; checkpoints are selected on the

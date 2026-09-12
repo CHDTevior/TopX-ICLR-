@@ -158,14 +158,12 @@ trained (App.~\ref{app:extend_more}).
 
 \subsection{Skeleton-aware evaluation}\label{sec:method:eval}
 \paragraph{Evaluator.} Retrieval metrics require a text--motion embedding, and existing ones are
-tied to one skeleton. We train two towers into a shared 512-d space: a frozen DistilBERT text tower
-with a trainable pooling head, and a graph-aware motion tower (6 graph layers, 4 temporal layers)
-over the \rep{} channels without contact, with a symmetric InfoNCE objective. The
-evaluator sees only real data, never generated samples, and shares no weights with the generator.
+tied to one skeleton. We train two towers into a shared embedding space: a frozen DistilBERT text tower
+with a trainable pooling head, and a graph-aware motion tower over the \rep{} channels excluding the
+contact flag, with a symmetric InfoNCE objective (App.~\ref{app:split}). The evaluator sees only real data,
+never generated samples, and shares no weights with the generator.
 
-\paragraph{Protocol.} Text$\to$motion R@1/2/3 in pools of 64, matching score and FID in the
-evaluator space, each next to the evaluator's score on the real clips of the same pools (with shuffled
-captions the evaluator scores R@1 \num{0.035} in pools of 32, chance \num{0.031}); generation is fixed at 20 steps,
-$s{=}2$ at seed 42 and sharded across GPUs under a hashed generation plan with provenance checks.
-Rigs outside the library, for which no evaluator exists, are scored geometrically
-(\S\ref{sec:exp:setup}).
+\paragraph{Protocol.} Text$\to$motion R-precision, matching score and FID are computed in the evaluator
+space and reported next to the evaluator's score on the real clips of the same pools (\S\ref{sec:exp:setup});
+with shuffled captions the evaluator scores at chance (App.~\ref{app:split}). Rigs outside the library, for
+which no evaluator exists, are scored geometrically (\S\ref{sec:exp:setup}).
