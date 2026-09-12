@@ -42,8 +42,8 @@ from measured group energies rather than hand-tuned removes the joint-count bias
 root, body and contact channels carry the same weight however many joints a rig has. Trained on a captioned corpus of production animal rigs and scored
 by a skeleton-aware text--motion evaluator, it reaches R@1 \num{0.867} against \num{0.904} for the real
 clips, at FID \num{0.005}. A rig outside the library generates through the same forward pass with no
-training of any kind, and a per-rig low-rank adapter on eight to twenty-six clips brings its rotation
-and position channels into agreement on bodies far outside the training distribution.
+training of any kind, and a per-rig low-rank adapter on roughly ten clips brings its rotation and
+position channels into agreement on bodies far outside the training distribution.
 \end{abstract}
 
 \input{sections/introduction}
