@@ -434,10 +434,7 @@ kinematic family, which is the deployable output, and the gap between the two is
 \S\ref{sec:exp:setup}. Joint order is validated against the rig's conditioning table before any
 metric is taken. All sequences, real and generated, are decimated to a common 20\,Hz with an
 anti-aliased polyphase filter when an AnyTop sample is present, and kept at the native 30\,Hz
-otherwise. Ratios are means over the rig's clips; where a rig has three or more clips we report
-$95\%$ bootstrap intervals in the artifacts.
-
-\section{Sampling cost}\label{app:cost}
+otherwise.\section{Sampling cost}\label{app:cost}
 
 Table~\ref{tab:cost} gives the wall-clock time of one sample at batch size 1 on one H200 GPU in fp32, for the
 protocol's padded 240-frame sequence of a 38-joint rig (\num{109} of the frames are real), with caption
@@ -467,29 +464,6 @@ Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & lat
 \end{tabular}
 \end{table}
 
-\section{Arithmetic}\label{app:controls}
-
-Generating and scoring the epoch-100 pilot end to end with TF32 matrix multiplication
-gives R@1 \num{0.8641}, against \num{0.8643} in fp32 on the same checkpoint, the same evaluation order and the
-same evaluator: one clip of the \num{3{,}840} scored. R@2, R@3, the FID and the text-to-ground-truth cosine are
-identical to five decimals. Table captions name the arithmetic each arm was sampled under.
-
-
-\paragraph{Diversity.} On the same samples, the mean distance between the embeddings of two lists of
-300 clips drawn without replacement is \num{1.4035} for the \num{303}M model and \num{1.3986} for the
-\num{36}M one, against \num{1.4035} for the real clips of the same set: both match the marginal spread of
-the data's own embeddings. The statistic is bounded by 2 here because the
-evaluator normalises its embeddings, and both real and generated clips sit near $\sqrt{2}$, the value
-of mutually orthogonal directions; it therefore separates a collapsed generator from a healthy one and
-says little between two healthy ones, and it is not comparable with values published for other
-evaluators. Multimodality is not reported: it needs a second generation pass per caption, outside the
-frozen protocol these numbers come from.
-
-Uncertainty for the FID is reported as the FID between two halves of the real validation set
-(\num{0.015} $\pm$ \num{0.001} over 20 splits), which is the estimator's resolution at half the
-sample size, rather than as a bootstrap interval: FID is a biased nonlinear estimator and its
-percentile interval need not contain the population value.
-
 \section{Ablation notes}\label{app:ablation_notes}
 
 \paragraph{What each ingredient is worth.} Table~\ref{tab:simple} prices them one at a time. Every arm is a
@@ -497,8 +471,8 @@ percentile interval need not contain the population value.
 rate, schedule and budget, read at the same three epochs under the frozen protocol.
 
 The arm \emph{without the joint descriptions} zeroes and freezes the description projection and keeps
-everything else. It is level with the full recipe at all three epochs (\num{+0.002}, \num{+0.003},
-\num{+0.002} of R@1) and its FID is \num{10}\% lower at epoch 100.
+everything else. It is level with the full recipe at all three epochs (\num{+0.002} of R@1 at each)
+and its FID is \num{10}\% lower at epoch 100.
 
 The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
 at uniform weights. It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{61}\% at epoch 100, and
@@ -506,20 +480,19 @@ it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
 direction biases off, structural features dropped, uniform weights --- loses \num{0.067}--\num{0.072}. Against
-the two arms above, the remaining \num{0.029}--\num{0.033} is what the geodesic and direction biases and the
+the two arms above, the remaining \num{0.029}--\num{0.034} is what the geodesic and direction biases and the
 structural features carry.
 
 The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
 objective, weights, schedule and budget, with the joint axis flattened into one token per frame. It loses
-\num{0.192}--\num{0.201} of R@1 and its FID is \num{3.7} times the full recipe's, and it is \num{0.123}
-below the arm that keeps per-joint tokens with every skeleton pathway switched off.
+\num{0.192}--\num{0.201} of R@1 and its FID is \num{3.7} times the full recipe's, and it is
+\num{0.122}--\num{0.134} below the arm that keeps per-joint tokens with every skeleton pathway switched off.
 
 \begin{table}[h]
 \centering\small
 \caption{One ingredient at a time, on the \num{36}M pilot. Same clips, cut, split, captions, rest-pose
 demonstration, batch, learning rate, schedule and budget in every row; frozen protocol, pools of 64, 20 Euler
-steps, guidance 2, seed 42. The full recipe was sampled in fp32 and the other four with TF32 matrix
-multiplication, which App.~\ref{app:controls} measures at \num{0.0003} of R@1. The last row is the adapted
+steps, guidance 2, seed 42. The last row is the adapted
 baseline of App.~\ref{app:flat}, which carries \num{5}\% more parameters than the full
 recipe.}\label{tab:simple}
 \setlength{\tabcolsep}{4pt}
@@ -693,9 +666,7 @@ Internal-joint artic., temporal std (deg) & \num{8.99} & \num{7.11} & \num{8.26}
 \begin{table}[h]
 \centering\footnotesize
 \caption{Channel layout at matched epochs (\num{36}M recipe, global batch 128, per-cell normalisation
-in both; frozen protocol: pool 64, 20 Euler steps, guidance 2, seed 42). The AnyTop-13 rows were sampled
-with TF32 matrix multiplication, the \rep{} rows in fp32, which App.~\ref{app:controls} measures at
-\num{0.0003} of R@1.}\label{tab:repcontent}
+in both; frozen protocol: pool 64, 20 Euler steps, guidance 2, seed 42).}\label{tab:repcontent}
 \begin{tabular}{lcccc}
 \toprule
 & \multicolumn{2}{c}{\rep{} (ours)} & \multicolumn{2}{c}{AnyTop-13 layout, derived} \\
@@ -719,8 +690,7 @@ size, not from the longer schedule.
 \begin{table}[h]
 \centering\footnotesize
 \caption{Model size at matched optimiser steps (epoch 200, global batch 128; frozen protocol, pool 64,
-20 Euler steps, guidance 2, seed 42). The \num{36}M row was sampled in fp32, the two larger rows with
-TF32 matrix multiplication, which App.~\ref{app:controls} measures at \num{0.0003} of R@1.}\label{tab:size}
+20 Euler steps, guidance 2, seed 42).}\label{tab:size}
 \begin{tabular}{lcccc}
 \toprule
 Model & Width / depth / heads & R@1$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ \\
@@ -769,7 +739,6 @@ structural joint features. Table~\ref{tab:simple} reads it at the same three epo
 per-joint tokens and switches every skeleton pathway off; it also runs the objective at uniform weights, so the
 two differ in the weighting as well as in the joint axis.
 
-Both arms carry the same group weights, so the joint axis is the only thing that differs between them.
 
 \section{Additional qualitative results}\label{app:qual}
 
@@ -824,7 +793,7 @@ re-calibrated for this condition and returned the same weights, so the two valid
 same scale). At the same optimiser step (\num{115{,}600}, epoch 200, scored on
 the same GPUs) the motion demonstration is worse where the two representations of a pose have to agree
 --- validation loss \num{0.270} against \num{0.247} and FK--pose gap \num{0.202} against \num{0.171}
-bone lengths --- equal in retrieval (R@1 \num{0.821} against \num{0.822}) and slightly better in FID
+bone lengths --- equal in retrieval (R@1 \num{0.822} against \num{0.821}) and slightly better in FID
 (\num{0.010} against \num{0.011}). The attribution of the demonstration pathway is an order of
 magnitude smaller than with the rest frame ($3{\times}10^{-4}$ against $5{\times}10^{-3}$), and the
 sequence is $26\%$ longer. On the four Truebones rigs of \S\ref{sec:exp:extend} neither condition wins:

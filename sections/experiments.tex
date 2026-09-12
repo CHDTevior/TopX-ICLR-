@@ -144,9 +144,10 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 The ablations share the pilot's recipe and checkpoint epoch; App.~\ref{app:ablation_notes} collects them
-with the notes. Flattening the joint axis into one token per frame costs \num{0.192}--\num{0.201} of R@1 and
-multiplies the FID by \num{3.7}, everything else matched and \num{5}\% more parameters on the flat side
-(Table~\ref{tab:simple}). Keeping the axis and removing what this paper puts on it costs
+with the notes. Flattening the joint axis into one token per frame, the construction fixed-skeleton generators are
+brought to variable skeletons with, costs \num{0.192}--\num{0.201} of R@1 and multiplies the FID by
+\num{3.7} at the same corpus, objective, group weights, schedule and budget, with \num{5}\% more
+parameters on the flat side (Table~\ref{tab:simple}). Keeping the axis and removing what this paper puts on it costs
 \num{0.067}--\num{0.072}: the calibrated group weights carry \num{0.036}--\num{0.043}, the geodesic and
 direction biases and the structural features the rest, the joint descriptions none. Removing the
 acceleration-matching term changes neither retrieval nor the FK--pose gap, which is not a test of the temporal
