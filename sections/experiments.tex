@@ -135,10 +135,10 @@ Spider (68 j.)  & 26 / 6 & \num{1.896} & \num{0.232} & \num{0.185} & \num{2.87} 
 \subsection{Ablations}\label{sec:exp:ablation}
 
 Table~\ref{tab:simple} removes the ingredients of \S\ref{sec:method:model} and \S\ref{sec:method:objective}
-one at a time from the \num{36}M pilot and adds the flat construction fixed-skeleton generators are brought to
-variable skeletons with (App.~\ref{app:flat}; same corpus, objective, group weights, schedule and budget, \num{5}\%
+one at a time from the \num{36}M pilot and adds the flat construction by which fixed-skeleton generators are
+usually brought to variable skeletons (App.~\ref{app:flat}; same corpus, objective, group weights, schedule and budget, \num{5}\%
 more parameters). The calibrated group
-weights carry \num{0.036}--\num{0.043} of R@1; the joint descriptions none on their own; removing the descriptions
+weights are worth \num{0.036}--\num{0.043} of R@1; the joint descriptions none on their own; removing the descriptions
 together with the geodesic and direction biases and the structural features costs a further
 \num{0.029}--\num{0.033}; and flattening the joint axis costs \num{0.192}--\num{0.201} and multiplies the FID by
 \num{3.7}.
@@ -164,13 +164,13 @@ Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:geom} measures what the representation buys on the deployable output, together with the two
-world-coordinate loss terms it makes writable and the 13-channel layout cannot carry. The 13-channel AnyTop
-layout derived from the same clips is within a point of R@1 of \rep{} at every matched epoch, in its favour,
-and \num{0.008} apart once its objective and partition are matched (App.~\ref{app:ablation_notes},
+Table~\ref{tab:geom} measures, on the deployable output, what the representation buys, together with the two
+world-coordinate loss terms it allows and the 13-channel layout cannot express. The 13-channel AnyTop
+layout derived from the same clips is within a point of R@1 of \rep{} at every matched epoch, and within
+\num{0.008} once its objective and partition are matched (App.~\ref{app:ablation_notes},
 Table~\ref{tab:repcontent}): retrieval does not resolve the layout. Geometry does. The two output channels of a
 \rep{} sample agree to \num{0.38} bone lengths against \num{1.45} at \num{36}M (\num{0.24} at \num{303}M); its
-leaf joints articulate, where the 13-channel layout has no rotation slot for them and the conversion fills it
+leaf joints articulate, whereas the 13-channel layout has no rotation slot for them and the conversion fills it
 from the parent; its feet slide less while flagged in contact; and its root travels within \num{4}\% of the
 data's displacement, against \num{22}\% further for the layout that integrates a root velocity. Per-cell mean
 and standard deviation are worth about two points of R@1 and \num{22}--\num{30}\% of the FID over a per-rig
@@ -180,8 +180,8 @@ R@1 \num{0.821}, \num{0.843} and \num{0.857} (Table~\ref{tab:size}).
 \begin{table}[t]
 \centering\small
 \caption{Geometry of the generated clips against their ground truth (\num{36}M arms at epoch 100, \num{303}M at
-epoch 289; \num{3899} validation clips; bl = mean rest bone length). \emph{\rep{} closer}: share of clips on which
-the \num{36}M \rep{} sample is nearer the ground truth than the 13-channel one. All quantities: Table~\ref{tab:physical}.}\label{tab:geom}
+epoch 289; \num{3{,}899} validation clips; bl = mean rest bone length). \emph{\rep{} closer}: share of clips on which
+the \num{36}M \rep{} sample is nearer the ground truth than the 13-channel one. Full table: Table~\ref{tab:physical}.}\label{tab:geom}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
