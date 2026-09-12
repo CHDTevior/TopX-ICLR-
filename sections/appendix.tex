@@ -341,8 +341,7 @@ Table~\ref{tab:open} lists the systems with a public implementation; Table~\ref{
 whose code is not released. Two capabilities separate this task from its neighbours. A caption is not what
 AnyTop~\citep{gat2025anytop} conditions on: generation
 selects a character rather than a prompt, and the released code has no classifier-free guidance.
-OmniZoo~\citep{chen2025omnizoo} draws the same line when it chooses its own baselines, excluding AnyTop
-``because it performs unconditional generation without text control''. Conversely, the text-conditioned
+Conversely, the text-conditioned
 systems with arbitrary-skeleton support generate for skeletons of one body plan --- OmniSkel's
 \citep{liu2025omniskel} user-defined skeletons are human, and SATA's \citep{zhang2026sata} text-to-motion is a
 downstream demonstration on HumanML3D, its quantitative evidence being cross-topology reconstruction and
@@ -354,8 +353,8 @@ retargeting.
 \emph{Any topology}: one model serves skeletons of different joint counts and trees. \emph{Text}: language-conditioned.
 \emph{Rotations}: joint rotations are predicted. \emph{IK-free}: the exported animation needs no inverse-kinematics fit.
 \emph{Root}: a world-space root trajectory is generated. \emph{Unseen rig}: a rig absent from training is served, and how.
-\emph{Baselines}: how the paper compares to other methods. n.r.\ = not reported. SAMoR is its cross-topology variant; its
-HumanML3D variant has a root and rotation branch. G-MDM omits root translation in its current implementation.}\label{tab:capability}
+\emph{Baselines}: how the paper compares to other methods. n.r.\ = not reported. G-MDM omits root translation in its
+current implementation.}\label{tab:capability}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lccccclp{4.2cm}}
 \toprule
@@ -366,9 +365,7 @@ AniMo~\citep{wang2025animo} (30-joint skeleton) & $\times$ & $\checkmark$ & $\ch
 OmniMotionGPT~\citep{yang2024omnimotiongpt} & $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & retrained on its data \\
 X-MoGen~\citep{wang2025xmogen} & $\times$ & $\checkmark$ & $\times$ & n.r. & n.r. & $\times$ & retrained on its data \\
 AnyTop~\citep{gat2025anytop} & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ (IK export) & $\checkmark$ & zero-shot, qualitative & MDM adapted, SinMDM per rig \\
-OmniZoo~\citep{chen2025omnizoo} & $\checkmark$ & $\checkmark$ & $\checkmark$ & n.r. & n.r. & qualitative demos & padded MoMask / MMM / AniMo \\
 G-MDM~\citep{lee2025dragon} & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & qualitative & per-object MDMs, retargeting \\
-SAMoR~\citep{samor2026} (cross-topology) & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ (IK) & $\times$ & held-out characters & T2M-GPT / MoGenTS retrained (reconstruction) \\
 \method{} (ours) & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & given its statistics, + adapter & released AnyTop as reference \\
 \bottomrule
 \end{tabular}}
@@ -715,11 +712,7 @@ query--key normalisation the same recipe trained for 290 epochs without a single
 
 Fixed-skeleton text-to-motion generators are brought to variable skeletons by making the tensor shape uniform.
 \citet{gat2025anytop} concatenate all joint features of a character and pad them to a length of $J\times D$, put
-the vectorised rest pose on the temporal axis as frame 0, and use the skeleton's name as the text. SAMoR
-concatenates all per-joint features into a single flat per-frame vector of dimension $J_{\max}\times 6$,
-zero-padded to \num{96} joints with padded positions masked in attention, and trains its baselines on the same
-corpus with the same splits, loss functions and budget. OmniZoo extends MoMask and MMM with joint padding and
-binary masking and appends species tags to the text prompts, on the same 95/5 split.
+the vectorised rest pose on the temporal axis as frame 0, and use the skeleton's name as the text.
 
 We build that construction on our corpus. One token per \emph{frame} carries every joint's channels, zero-padded
 to \num{102} (the library's largest rig) and masked by the batch's joint-validity flags; frames attend to frames;
