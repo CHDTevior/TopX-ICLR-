@@ -150,7 +150,9 @@ $E_g$ is the mean squared standardised target over its valid cells, measured in 
 training cohort at the run's batch and demonstration condition; the family weight is then the closed
 form $\gamma_f=\sqrt{s_f/\sum_{g\in f}E_g}$, applied to every group of the family, with the rotation family
 anchored at $10$ and the others scaled relative to it. On the library this gives $12.2$ for the root trajectory, $14.2$ for body
-position, $10$ for rotations, $3.0$ for velocities, $5.6$ for contact and $2.8$ for heading.
+position, $10$ for rotations, $3.0$ for velocities, $5.6$ for contact and $2.8$ for heading. The cancellation is of
+a group's aggregate cell count over the batch: within a batch of mixed rigs, a rig's share of a group's gradient is
+its share of the group's cells.
 
 \paragraph{Mechanism check and artifact.} Because the weights act on gradients rather than on
 targets, the artifact is certified by running $30$ optimiser-free steps of a small model under the
@@ -526,8 +528,9 @@ it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
 direction biases off, structural features dropped, uniform weights --- loses \num{0.067}--\num{0.072}. Against
-the two arms above, the remaining \num{0.029}--\num{0.033} is what the geodesic and direction biases and the
-structural features carry.
+the arm without the calibrated weights, the remaining \num{0.029}--\num{0.033} is the cost of removing the
+descriptions together with the geodesic and direction biases and the structural features; the description-only
+arm above was run with calibrated weights, so the two removals are not separated under uniform weights.
 
 The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
 objective, weights, schedule and budget, with the joint axis flattened into one token per frame. It loses

@@ -61,8 +61,8 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
   new rig, under any naming convention, is a new set of inputs. Every joint carries both positions and
   rotations, so a sample decodes two ways and their agreement is a number this paper reports throughout.
 \item \textbf{An objective and a recipe under which this heterogeneity trains, up to 0.3B}
-  (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies, so a 102-joint
-  rig's body rotations do not drown its root, contact and trajectory channels; calibrated rather than
+  (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies, so body rotations do not
+  drown the root, contact and trajectory channels; calibrated rather than
   uniform weights are worth \num{0.036}--\num{0.043} of R@1 and reduce the FID by \num{38}\%. Query--key normalisation
   is what makes the 0.3B model trainable, where every attempt without it diverged, and retrieval and FID
   improve monotonically from \num{36}M to \num{303}M parameters at a matched number of optimiser steps.

@@ -38,8 +38,8 @@ prepended to the sequence as a clean frame, and natural-language descriptions of
 with a graph-distance attention bias tell the network what each joint is; nothing in the model is
 specific to a skeleton, so a rig it has never seen is served by the same forward pass once its
 statistics are supplied. And a grouped flow-matching objective whose channel weights are calibrated
-from measured group energies rather than hand-tuned removes the joint-count bias of a per-cell loss, so
-root, body and contact channels carry the same weight however many joints a rig has. Trained on a captioned corpus of production animal rigs and scored
+from measured group energies rather than hand-tuned removes the joint-count bias of a per-cell loss from
+the weight of the root, body and contact channel groups. Trained on a captioned corpus of production animal rigs and scored
 by a skeleton-aware text--motion evaluator, it reaches R@1 \num{0.867} against \num{0.904} for the real
 clips, at FID \num{0.005}. A rig outside the library generates through the same forward pass with no
 training of any kind, and a per-rig low-rank adapter on roughly ten clips brings its rotation and
