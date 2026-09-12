@@ -185,7 +185,9 @@ a shortened forward-kinematics warm-up. A single adapter can also be shared by a
 unadapted model's jitter excess on all of them and, on the one rig where both were trained, comes close to
 its own adapter (App.~\ref{app:extend_more}).
 
-\paragraph{Hyper-parameters.} Table~\ref{tab:lora_hp} lists the per-rig settings. The learning rate
+\paragraph{Hyper-parameters.} Table~\ref{tab:lora_hp} lists the per-rig settings. The Truebones arms of
+Table~\ref{tab:lora} are sampled with seed 7; the zero-training arm and the adapters start from the epoch-214
+snapshot of the backbone. The learning rate
 follows the linear-scaling rule from $10^{-4}$ at batch 8; the batch divides the rig's training-clip
 count so that every clip is seen exactly once per epoch, and is at most 13. Adapters
 act, with scale $\alpha{=}1$, on the query, key, value and output projections of both attention blocks, the
@@ -516,6 +518,11 @@ root channels as predicted, under the same evaluator, pools and acceptance rule.
 sampled channels; at \num{36}M, \num{0.837}, \num{0.0087} and \num{0.742} against \num{0.840}, \num{0.0083} and
 \num{0.746}. The real clips' reference is unchanged, and the two decodings of a real clip agree to \num{1e-6} bone
 lengths under the same code, so the two scores differ by the FK--pose gap of the samples and by nothing else.
+
+\section{Training details}\label{app:training}
+
+Both models train in bf16 on 8 H200 GPUs, \num{578} optimiser steps per epoch at the global batch of
+Table~\ref{tab:hparams}; the optimiser and schedule settings are those of that table.
 
 \section{Ablation notes}\label{app:ablation_notes}
 

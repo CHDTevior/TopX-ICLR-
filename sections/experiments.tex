@@ -1,19 +1,10 @@
 \section{Experiments}\label{sec:exp}
 
-We ask four questions. (1) How well does one set of weights serve hundreds of heterogeneous
-skeletons on text-conditioned generation (\S\ref{sec:exp:main})? (2) How far does the model
-extend to a rig it has never seen, with no training and with about ten clips
-(\S\ref{sec:exp:extend})? (3) Which capabilities does it combine that released
-systems provide separately, and what does the released arbitrary-topology model produce on the same rigs
-(\S\ref{sec:exp:compare})? (4) Which ingredients matter
-(\S\ref{sec:exp:ablation})?
-
 \subsection{Setup}\label{sec:exp:setup}
 
 \paragraph{Library and splits.} The training library is a \num{311}-rig animal corpus in \rep{}
 (\num{77{,}894} clips, \num{6.18}M frames at 30\,fps; deformation bones only, 34--102 joints per rig, median 64,
-\num{108} distinct kinematic trees); cells are standardised with the standard-deviation floor
-$\epsilon_\sigma{=}0.05$ (\S\ref{sec:method:rep}); validation holds \num{3{,}899} clips, \num{5}\% of every rig's
+\num{108} distinct kinematic trees); validation holds \num{3{,}899} clips, \num{5}\% of every rig's
 (App.~\ref{app:split}). Rigs outside the library come from
 the Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs converted to \rep{} with the same
 pipeline (\num{802} captioned), each rig split $80/20$ into train and validation clips.
@@ -21,15 +12,14 @@ pipeline (\num{802} captioned), each rig split $80/20$ into train and validation
 \paragraph{Models and optimisation.} Table~\ref{tab:hparams} lists every symbol of \S\ref{sec:method} with
 its value. The \num{36}M pilot shares every setting of the main model except size, learning rate and length
 of training, and is used for the ablations. Both train with AdamW---warm-up, cosine decay, gradient clipping and
-rejection of any step whose pre-clipping gradient norm exceeds a threshold---in bf16 on 8 H200 GPUs (\num{578}
-steps per epoch); the main model's best validation loss falls at epoch 289, the checkpoint scored throughout.
+rejection of any step whose pre-clipping gradient norm exceeds a threshold---in bf16 (App.~\ref{app:training});
+the main model's best validation loss falls at epoch 289, the checkpoint scored throughout.
 
 
-\paragraph{Protocol.} Generation uses 20 Euler steps and text guidance $s{=}2$ everywhere
-(\S\ref{sec:method:sampling}), at the length of the real clip (at most $L$ frames), from the epoch-289
-checkpoint; Table~\ref{tab:main} is the mean of five sampling seeds, every other library table uses seed 42,
-and the Truebones arms of \S\ref{sec:exp:extend} use seed 7 and the epoch-214 snapshot that initialised the
-adapters. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R-precision at $K{=}1,2,3$ in
+\paragraph{Protocol.} Generation uses $S$ Euler steps and guidance scale $s$ (Table~\ref{tab:hparams})
+everywhere, at the length of the real clip (at most $L$ frames), from the epoch-289 checkpoint;
+Table~\ref{tab:main} is the mean of five sampling seeds and every other table uses seed 42 (the Truebones arms:
+App.~\ref{app:lora}). Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R@1/2/3 in
 pools of 64 formed by chunking the dataset order (a retrieved motion is correct if it is the caption's own
 clip), the FID on the evaluator's $\ell_2$-normalised embeddings and the text--motion matching score, each
 next to the evaluator's score on the real clips of the same pools (a reference, not a bound). The evaluator
