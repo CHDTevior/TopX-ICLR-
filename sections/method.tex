@@ -47,36 +47,46 @@ rigs, 986 clips) is never trained on by the backbone; App.~\ref{app:rep} gives t
 
 \subsection{In-context skeleton conditioning}\label{sec:method:model}
 
-\paragraph{Layout.} The network input is $[\,\mathbf{x}^{\mathrm{demo}}\mid
-\mathbf{x}_t^{\mathrm{tgt}}\,]$ along time: one clean frame holding the rig's analytic rest pose,
-never noised, followed by the $T{=}240$ target frames that carry the flow interpolant and are the
-only frames denoised and scored. Under the rest-delta parameterisation the rest frame's rotation
-channels are the identity on every rig, so it conveys proportions, joint count and graph rather
-than motion; after per-cell normalisation it also carries the rig's statistics.
+\paragraph{Tokens and layout.} One token per frame and joint (Figure~\ref{fig:teaser}, \emph{any rig
+$\to$ tokens}): the 17 channels of a cell are projected to width $D$ and receive a frame-index and a
+joint-slot embedding. The sequence is $[\,\mathbf{x}^{\mathrm{demo}}\mid\mathbf{x}_t^{\mathrm{tgt}}\,]$
+along time: one clean frame holding the rig's analytic rest pose, never noised, followed by the
+$T{=}240$ target frames that carry the flow interpolant, a learned marker, and are the only frames
+denoised and scored. Under the rest-delta parameterisation the rest frame's rotations are the identity
+on every rig, so it conveys proportions, joint count and graph rather than motion; after per-cell
+normalisation it also carries the rig's statistics.
 
-\paragraph{Joint semantics.} Each joint description $d_j$ is embedded once with
-LLM2Vec~\citep{behnamghader2024llm2vec} (4096-d), projected and \emph{added} to every token of joint
-$j$; descriptions rather than bone names, because ``front left upper leg'' is the same concept on a
-horse and a lizard whereas \texttt{L\_Femur\_02} and \texttt{b\_hindleg\_l\_1} are not, and a new
-rig's naming scheme need never have been seen.
+\paragraph{Three signals name the skeleton.} Nothing in the network is indexed by rig; what it knows
+about a body arrives as input (Figure~\ref{fig:teaser}, \emph{token embedding}). \emph{Geometry}: the
+rest frame above. \emph{Identity}: each joint description $d_j$ is embedded once with frozen
+LLM2Vec~\citep{behnamghader2024llm2vec} (4096-d), projected and added to every token of joint $j$;
+descriptions rather than bone names, because ``front left upper leg'' is the same concept on a horse
+and a lizard whereas \texttt{L\_Femur\_02} and \texttt{b\_hindleg\_l\_1} are not, and a new rig's
+naming scheme need never have been seen. \emph{Place in the tree}: an 8-d structural vector per joint
+(rest-offset direction, bone length, tree depth, root-path length, child count, leaf flag), through a
+zero-initialised MLP, added to the same tokens.
 
-\paragraph{Structure and graph bias.} An 8-d structural vector per joint (rest-offset direction,
-bone length, tree depth, root-path length, child count, leaf flag) enters through a zero-initialised
-MLP, and spatial attention receives a fixed bias from the geodesic distance on the tree plus two
-learned tables indexed by the hops to the lowest common ancestor (App.~\ref{app:model}).
+\paragraph{The graph enters as an attention bias.} Each of the 14 blocks factorises attention over the
+two token axes (Figure~\ref{fig:teaser}, \emph{transformer}): temporal attention, one joint over its
+frames; spatial attention, one frame over its joints; then a $4\times$ MLP. Only the spatial attention
+sees the kinematic tree, as an additive per-head bias on the logits between joints $i$ and $j$,
+$b^{(h)}_{ij}=-\min(g_{ij},8)+u^{(h)}_{a_{ij}}+d^{(h)}_{s_{ij}}$, where $g_{ij}$ is the hop distance on
+the tree and $a_{ij},s_{ij}$ the hops up and down to the lowest common ancestor (clipped at 15), with
+$u,d$ zero-initialised tables. Nearer joints attend more by default, and the tables let a head tell
+parent from child and a joint of the same limb from one across the body (App.~\ref{app:model}). The
+tree is a soft prior on a fully connected joint attention, not a fixed layer, so one network serves
+any joint count and topology.
 
-\paragraph{Block.} Each of the 14 blocks applies temporal attention (tokens are frames, batched
-over joints), spatial attention (tokens are joints, batched over frames, with the graph bias) and a
-$4\times$ MLP, each modulated by AdaLN~\citep{peebles2023dit} from
-$\mathbf{c}=\mathrm{MLP}(t)+\mathrm{MLP}(\mathbf{e}_c)$, with $\mathbf{e}_c$ the pooled LLM2Vec caption
-embedding, so text reaches the model only through modulation and the token stream stays kinematic.
-Width 896, 14 heads, \num{302.9}M parameters.
+\paragraph{Text and time modulate.} $\mathbf{c}=\mathrm{MLP}(t)+\mathrm{MLP}(\mathbf{e}_c)$, with
+$\mathbf{e}_c$ the pooled LLM2Vec caption embedding, drives AdaLN~\citep{peebles2023dit} shift, scale
+and gate on every sub-layer and shift and scale on the output head, so text reaches the model only
+through modulation and the token stream stays kinematic. The caption is dropped with probability 0.1
+for classifier-free guidance; the rest-pose prompt is never dropped.
 
-\paragraph{Stability and guidance.} Queries and keys are RMS-normalised per head before the dot
-product~\citep{dehghani2023vit22b}: in our runs every 0.3B attempt without it diverged with
-attention logits growing from $\sim$1.4k to 23k, and with it the eight probes taken through epoch 199
-of the \num{303}M run peak at \num{28.1}. The caption is dropped with
-probability 0.1 for classifier-free guidance; the rest-pose prompt is never dropped.
+\paragraph{Scale and stability.} Width 896, 14 heads, \num{302.9}M parameters. Queries and keys are
+RMS-normalised per head before the dot product~\citep{dehghani2023vit22b}: every 0.3B attempt without
+it diverged, with attention logits growing from $\sim$1.4k to 23k; with it the eight probes taken
+through epoch 199 of the \num{303}M run peak at \num{28.1}.
 
 \subsection{Calibrated grouped flow-matching objective}\label{sec:method:objective}
 
