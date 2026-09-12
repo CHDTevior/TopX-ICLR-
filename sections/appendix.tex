@@ -250,7 +250,7 @@ measured over all of its clips in Table~\ref{tab:lora}, evaluation clips include
 re-runs both arms with statistics measured from the rig's \num{8}--\num{26} adaptation clips only: a sibling view
 that declares those statistics, a calibration measured on it, the adapter re-trained under the published recipe,
 and both arms re-sampled and scored by the protocol of \S\ref{sec:exp:setup}. The adapter still brings the two
-channels together and still removes the jitter excess; its gap moves by at most \num{0.13} bone lengths, and the
+channels together and still removes the jitter excess; the adapted gap moves by at most \num{0.13} bone lengths, and the
 articulation and jitter ratios by less than the difference between rigs.
 
 \begin{table}[h]
@@ -480,13 +480,13 @@ it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and
 direction biases off, structural features dropped, uniform weights --- loses \num{0.067}--\num{0.072}. Against
-the two arms above, the remaining \num{0.029}--\num{0.034} is what the geodesic and direction biases and the
+the two arms above, the remaining \num{0.029}--\num{0.033} is what the geodesic and direction biases and the
 structural features carry.
 
 The last arm is the adapted baseline of App.~\ref{app:flat}: the same corpus, split, captions, rest pose,
 objective, weights, schedule and budget, with the joint axis flattened into one token per frame. It loses
 \num{0.192}--\num{0.201} of R@1 and its FID is \num{3.7} times the full recipe's, and it is
-\num{0.122}--\num{0.134} below the arm that keeps per-joint tokens with every skeleton pathway switched off.
+\num{0.123}--\num{0.134} below the arm that keeps per-joint tokens with every skeleton pathway switched off.
 
 \begin{table}[h]
 \centering\small
@@ -683,8 +683,8 @@ Epoch & R@1$\uparrow$ & FID$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \paragraph{Model size.} Table~\ref{tab:size} scores three sizes of the same recipe -- width, depth and head count grow
 together, so it measures model size and not the contribution of any one of them -- at the
 same number of optimiser steps and data passes (epoch 200, global batch 128, frozen protocol). Retrieval and FID
-improve monotonically with size; the \num{303}M model at epoch 200 is about a point of R@1 below its epoch-289 checkpoint in
-Table~\ref{tab:main} (\num{0.857} against \num{0.867}), so most of its gain over the pilot comes from
+improve monotonically with size; at the same sampling seed the \num{303}M model at epoch 200 is \num{0.007} of R@1 below
+its epoch-289 checkpoint (\num{0.857} against \num{0.864}, Table~\ref{tab:pool}), so most of its gain over the pilot comes from
 size, not from the longer schedule.
 
 \begin{table}[h]
