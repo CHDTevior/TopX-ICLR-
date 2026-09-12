@@ -99,7 +99,8 @@ sample $\hat{\mathbf{x}}_1$, and the velocity-space weight of \citet{li2025jit} 
   \qquad w(t)=\frac{1}{\max(1-t,\,\sigma_{\min})^{2}},
   \label{eq:elem}
 \end{equation}
-with $\sigma_{\min}=0.2$, $\delta=10$ (below the measured 99.99th percentile of the normalised
+with $\mathrm{Huber}_{\delta}(r)=r^{2}$ for $|r|\le\delta$ and $\delta(2|r|-\delta)$ beyond, applied per cell,
+$\sigma_{\min}=0.2$, $\delta=10$ (below the measured 99.99th percentile of the normalised
 targets, \num{11.45}; the knee acts on residuals, and at initialisation it binds on \num{0.015}\% of
 supervised cells, recorded in the calibration artifact) and a
 uniform $t$ sampler (App.~\ref{app:ablation_notes}).
@@ -134,8 +135,8 @@ the error energies, which evolve (App.~\ref{app:calib}).
 
 \paragraph{Auxiliary terms.} A forward-kinematics consistency term between predicted positions and
 positions forward-kinematised from predicted rotations, a velocity term on world joint displacements,
-a foot-lock term gated by the contact channel, and an acceleration-matching term are added in the same
-frame (App.~\ref{app:calib}).
+a foot-lock term gated by the contact channel, and an acceleration-matching term are added, none of them
+carrying the time weight $w(t)$ (App.~\ref{app:calib}).
 
 \paragraph{Optimisation.} AdamW, learning rate $1.5\times10^{-4}$ at global batch 128 (the
 \num{36}M pilot: $2\times10^{-4}$), 4k warm-up steps, cosine decay to a $10^{-2}$ floor over 40

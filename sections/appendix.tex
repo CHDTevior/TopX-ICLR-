@@ -114,13 +114,14 @@ limb'' are distinguishable; padded joints receive $-10^{4}$.
 
 \section{Calibration of the grouped objective}\label{app:calib}
 
-\paragraph{Auxiliary terms.} Four terms are added in the same calibrated frame: a
-forward-kinematics consistency term between predicted positions and positions forward-kinematised
-from predicted rotations (weight 0.07, ramped over the first 5k steps); a velocity term matching
-world joint displacements between consecutive frames over every valid joint (0.01); a foot-lock term,
-gated by the de-normalised contact channel, that demands zero displacement of a joint flagged in
-contact (0.01); and an acceleration-matching term on second temporal differences (1.0), which is what
-removed the residual jitter of early runs.
+\paragraph{Auxiliary terms.} Four terms are added, none carrying the time weight $w(t)$: a
+forward-kinematics consistency term between the predicted positions and the positions
+forward-kinematised from the predicted rotations, in de-normalised coordinates (weight 0.07, ramped
+over the first 5k steps); a velocity term matching world joint displacements between consecutive
+frames over every valid joint (0.01); a foot-lock term, gated by the de-normalised contact channel,
+that demands zero displacement of a joint flagged in contact (0.01); and an acceleration-matching term
+on the second temporal differences of the normalised channels (1.0), which is what removed the
+residual jitter of early runs.
 
 
 
