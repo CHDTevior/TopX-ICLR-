@@ -500,6 +500,16 @@ rig-shard of the validation order, seeds 101--130, the sampler of \S\ref{sec:met
 distance over ten pairs per caption; the pairing is drawn 500 times and averaged, which removes the variance of a
 single draw. Real clips have one sample per caption, so the reference row has no MModality.
 
+\paragraph{Retrieval on the played animation.} The evaluator of \S\ref{sec:method:eval} scores \rep{} channels; the
+rig plays rotations and a root trajectory. To score what is played, the seed-42 samples of Table~\ref{tab:main}
+were re-scored with their position channels replaced by the forward kinematics of the predicted rotations and
+their velocity channels recomputed from those positions with the codec's own convention, rotations, contact and
+root channels as predicted, under the same evaluator, pools and acceptance rule. At \num{303}M this gives R@1
+\num{0.865}, FID \num{0.0049} and matching \num{0.762} against \num{0.864}, \num{0.0051} and \num{0.764} on the
+sampled channels; at \num{36}M, \num{0.837}, \num{0.0087} and \num{0.742} against \num{0.840}, \num{0.0083} and
+\num{0.746}. The real clips' reference is unchanged, and the two decodings of a real clip agree to \num{1e-6} bone
+lengths under the same code, so the two scores differ by the FK--pose gap of the samples and by nothing else.
+
 \section{Ablation notes}\label{app:ablation_notes}
 
 \paragraph{What each ingredient is worth.} Table~\ref{tab:simple} prices them one at a time. Every arm is a

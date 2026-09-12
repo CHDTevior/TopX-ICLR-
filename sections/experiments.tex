@@ -29,12 +29,13 @@ and the Truebones arms of \S\ref{sec:exp:extend} use seed 7 and the epoch-214 sn
 adapters. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R-precision at $K{=}1,2,3$ in
 pools of 64 formed by chunking the dataset order (a retrieved motion is correct if it is the caption's own
 clip), the FID on the evaluator's $\ell_2$-normalised embeddings and the text--motion matching score, each
-next to the evaluator's score on the real clips of the same pools (a reference, not a bound); the evaluator
-scores the sampled channels, not the played animation. Geometry is
-measured in world space on the deployable output, the forward kinematics of the predicted rotations. The
-\emph{FK--pose gap} is the mean distance, in the rig's mean bone length, between the forward-kinematised and
-the directly predicted joint positions: a consistency of the two output channels, not a distance to the
-target. On Truebones rigs, for which no skeleton-aware evaluator exists, articulation, jitter and root speed
+next to the evaluator's score on the real clips of the same pools (a reference, not a bound). The evaluator
+scores the sampled channels; re-scoring the same samples with the position and velocity channels recomputed from
+the forward kinematics of the predicted rotations --- the animation the rig plays --- moves R@1 by $+0.001$ at
+\num{303}M and $-0.003$ at \num{36}M (App.~\ref{app:metrics}). Geometry is measured in world space on that
+deployable output. The \emph{FK--pose gap} is the mean distance, in the rig's mean bone length, between the
+forward-kinematised and the directly predicted joint positions: a consistency of the two output channels, not a
+distance to the target. On Truebones rigs, for which no skeleton-aware evaluator exists, articulation, jitter and root speed
 are reported as ratios to the rig's real clips (App.~\ref{app:metrics}).
 
 \subsection{One model for 311 skeletons}\label{sec:exp:main}
@@ -45,8 +46,8 @@ the subject of \S\ref{sec:exp:extend}. The \num{303}M
 model reaches R@1 \num{0.867} against \num{0.904} for the real clips scored by the same evaluator
 in the same pools, a text--motion matching score of \num{0.764} against \num{0.782}, an FID of
 \num{0.005} and the real clips' Diversity (\num{1.400} against \num{1.399}); the \num{36}M pilot reaches R@1
-\num{0.840} and FID \num{0.008}. The pools follow the dataset order;
-R-precision uses the \num{3{,}840} clips of the 60 complete pools, the other columns all \num{3{,}899}.
+\num{0.840} and FID \num{0.008}. R-precision uses the \num{3{,}840} clips of the 60 complete pools, the other
+columns all \num{3{,}899}.
 
 \begin{table}[t]
 \centering
