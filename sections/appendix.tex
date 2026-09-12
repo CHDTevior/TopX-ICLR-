@@ -644,12 +644,12 @@ the quantities the layout was designed around; retrieval does not resolve them.
 
 \begin{table}[h]
 \centering\footnotesize
-\caption{Geometry of the generated clips against their ground truth (epoch 100, the \num{3899} validation clips
+\caption{Geometry of the generated clips against their ground truth (epoch 100, the \num{3{,}899} validation clips
 and the same frozen samples as Table~\ref{tab:repcontent}; official codec; bl = the rig's mean rest bone
 length). Last column: share of clips on which the \rep{} sample is closer to the ground truth than the
-13-channel sample (ties count for neither). Every row uses all \num{3899} clips except foot slide, which each stream computes under its own
+13-channel sample (ties count for neither). Every row uses all \num{3{,}899} clips except foot slide, which each stream computes under its own
 contact flags and which is therefore compared only on the \num{3610} clips where all three are
-defined; over all \num{3899} clips the streams flag contact on a similar share of frames --- \num{0.58}
+defined; over all \num{3{,}899} clips the streams flag contact on a similar share of frames --- \num{0.58}
 for \rep{}, \num{0.56} for the 13-channel layout, \num{0.57} for the \num{303}M model and \num{0.59}
 in the real clips --- so the lower sliding is not a matter of flagging fewer frames. Epochs 50 and 75 give the same picture. The \num{303}M column is the main model's own
 frozen samples (epoch 289, the checkpoint of Table~\ref{tab:main}), decoded through the same stream and scored on
