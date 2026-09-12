@@ -10,9 +10,11 @@ systems provide separately, and what does the released arbitrary-topology model 
 
 \subsection{Setup}\label{sec:exp:setup}
 
-\paragraph{Library and splits.} The training library is the \num{311}-rig animal corpus of
-\S\ref{sec:method:rep} (\num{77{,}894} clips, \num{6.18}M frames at 30\,fps, 34--102 joints); validation
-holds \num{3{,}899} clips, \num{5}\% of every rig's (App.~\ref{app:split}). Rigs outside the library come from
+\paragraph{Library and splits.} The training library is a \num{311}-rig animal corpus in \rep{}
+(\num{77{,}894} clips, \num{6.18}M frames at 30\,fps; deformation bones only, 34--102 joints per rig, median 64,
+\num{108} distinct kinematic trees); cells are standardised with the standard-deviation floor
+$\epsilon_\sigma{=}0.05$ (\S\ref{sec:method:rep}); validation holds \num{3{,}899} clips, \num{5}\% of every rig's
+(App.~\ref{app:split}). Rigs outside the library come from
 the Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs converted to \rep{} with the same
 pipeline (\num{802} captioned), each rig split $80/20$ into train and validation clips.
 
