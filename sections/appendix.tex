@@ -188,8 +188,9 @@ its own adapter (App.~\ref{app:extend_more}).
 \paragraph{Hyper-parameters.} Table~\ref{tab:lora_hp} lists the per-rig settings. The learning rate
 follows the linear-scaling rule from $10^{-4}$ at batch 8; the batch divides the rig's training-clip
 count so that every clip is seen exactly once per epoch, and is at most 13. Adapters
-act on the query, key, value and output projections of both attention blocks, the feed-forward layers
-and the conditioning MLPs (62 linear layers of the \num{36}M backbone, 104 of the \num{303}M one); a
+act, with scale $\alpha{=}1$, on the query, key, value and output projections of both attention blocks, the
+feed-forward layers and the conditioning MLPs (62 linear layers of the \num{36}M backbone, 104 of the \num{303}M
+one); a
 100-step warm-up precedes a half-cosine decay over five sixths of the epochs to $1\%$ of the peak, and
 the forward-kinematics term ramps over 100 steps. At rank 64 the adapter holds \num{7.06}M trainable
 parameters on the \num{36}M backbone and \num{26.8}M on the \num{303}M one ($16\%$ and $8\%$ of the

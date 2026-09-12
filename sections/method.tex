@@ -141,19 +141,18 @@ with guidance scale $s$ (\S\ref{sec:exp:setup}). Twenty steps is the operating p
 cost, and App.~\ref{app:cost} gives the latency and quality of both.
 
 \subsection{Extending the model to a rig it has never seen}\label{sec:method:lora}
-\paragraph{Zero-training arm.} An unseen rig is served by the frozen backbone as soon as its rest
+\paragraph{Zero-training use.} An unseen rig is served by the frozen backbone as soon as its rest
 pose, joint descriptions and per-cell statistics (from its own clips) are supplied; on the Truebones
 rigs this yields motion with far more jitter than the real clips, since wing chains and eight-legged
-gaits are absent from the training prior.
+gaits are absent from the training library.
 
-\paragraph{Per-rig LoRA.} When roughly ten clips of the new rig exist, we attach rank-64 or rank-128
-adapters~\citep{hu2022lora} (scale 1) to the attention projections, the MLPs and the conditioning
-paths (joint-semantics projection, caption MLP, structural MLP, AdaLN), leaving the input and output
-projections and the timestep MLP frozen; the adapters hold 26.8M (r64) or 53.6M (r128) parameters
-and are folded back into the weights at export, so every consumer loads a plain checkpoint. The
-new rig's data view is built by the corpus script (joint pruning to the deformation-bone convention,
-corpus-style captions, an 80/20 split) and the adapter is trained with the backbone
-recipe for 300--900 epochs (App.~\ref{app:lora}); a single adapter shared by a group of rigs
+\paragraph{Per-rig LoRA.} When roughly ten clips of the new rig exist, we attach rank-$r$
+adapters~\citep{hu2022lora} with scale $\alpha$ (App.~\ref{app:lora}) to the attention projections, the MLPs
+and the conditioning paths (joint-semantics projection, caption MLP, structural MLP, AdaLN), leaving the
+input and output projections and the timestep MLP frozen. The adapters are folded back into the weights at
+export, so the exported model is an ordinary checkpoint. The new rig is converted with the same pipeline as
+the library (joint pruning to deformation bones, captions in the corpus style, an 80/20 split) and the
+adapter is trained with the backbone recipe (App.~\ref{app:lora}); a single adapter shared by a group of rigs
 removes the same jitter excess on all of them, and matches a per-rig adapter on the one rig where both were
 trained (App.~\ref{app:extend_more}).
 
