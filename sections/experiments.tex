@@ -35,12 +35,11 @@ are reported as ratios to the rig's real clips (App.~\ref{app:metrics}).
 
 Table~\ref{tab:main} reports text-to-motion retrieval on the validation set. All \num{311} rigs appear in
 training, so this measures the generation of held-out clips on known rigs; rigs outside the library are
-the subject of \S\ref{sec:exp:extend}. The \num{303}M
-model reaches R@1 \num{0.867} against \num{0.904} for the real clips scored by the same evaluator
-in the same pools, a text--motion matching score of \num{0.764} against \num{0.782}, an FID of
-\num{0.005} and the real clips' Diversity (\num{1.400} against \num{1.399}); the \num{36}M pilot reaches R@1
-\num{0.840} and FID \num{0.008}. R-precision uses the \num{3{,}840} clips of the 60 complete pools, the other
-columns all \num{3{,}899}.
+the subject of \S\ref{sec:exp:extend}. The \num{303}M model reaches R@1 \num{0.867}, matching score
+\num{0.764}, FID \num{0.005} and Diversity \num{1.400}, where the real clips score \num{0.904}, \num{0.782} and
+\num{1.399} under the same evaluator in the same pools; the \num{36}M pilot reaches R@1 \num{0.840} and FID
+\num{0.008}. R-precision uses the \num{3{,}840} clips of the 60 complete pools; the other columns use all
+\num{3{,}899}.
 
 \begin{table}[t]
 \centering
@@ -54,7 +53,7 @@ follow \citet{guo2022generating} (App.~\ref{app:metrics}).}\label{tab:main}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccccc c}
 \toprule
-& R@1$\uparrow$ & R@2$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ & Matching$\uparrow$ & Diversity$\rightarrow$ & MModality$\uparrow$ \\
+& R@1$\uparrow$ & R@2$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ & Match$\uparrow$ & Diversity$\rightarrow$ & MModality$\uparrow$ \\
 \midrule
 Real clips (reference) & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.782} & \num{1.399}$\pm$\num{0.002} & -- \\
 \method{} \num{36}M (pilot) & \num{0.840}$\pm$\num{0.003} & \num{0.957}$\pm$\num{0.003} & \num{0.981}$\pm$\num{0.003} & \num{0.0082}$\pm$\num{0.0001} & \num{0.746}$\pm$\num{0.001} & \num{1.400}$\pm$\num{0.004} & \num{0.247} \\
@@ -90,8 +89,8 @@ $p_{\mathrm{drop}}$ & caption dropout & 0.1 & $S$, $s$ & Euler steps, guidance &
 \includegraphics[width=0.9\linewidth]{figures/qualitative.pdf}
 \caption{Seven generated clips of five library rigs on their production meshes. Travelling actions: four to
 five poses at equal distances along the root path, light (first) to dark (last), with the root trajectory on the
-ground. Actions on the spot: four frames at equal times from a fixed camera. Captions are the clips'
-own.}\label{fig:qual}
+ground. Actions on the spot: four frames at equal times from a fixed camera. Prompts are the clips' own
+captions.}\label{fig:qual}
 \end{figure}
 
 \subsection{Extending the model to rigs it has never seen}\label{sec:exp:extend}
