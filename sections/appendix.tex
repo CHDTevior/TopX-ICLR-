@@ -471,7 +471,7 @@ Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & lat
 rate, schedule and budget, read at the same three epochs under the frozen protocol.
 
 The arm \emph{without the joint descriptions} zeroes and freezes the description projection and keeps
-everything else. It is level with the full recipe at all three epochs (\num{+0.002} of R@1 at each)
+everything else. It is level with the full recipe at all three epochs, within \num{0.003} of R@1,
 and its FID is \num{10}\% lower at epoch 100.
 
 The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
