@@ -13,9 +13,7 @@ diffusion and text conditioning and removes the fixed skeleton.
 skeleton-agnostic embeddings such as SAME~\citep{lee2023same} and SATA~\citep{zhang2026sata}, whose
 text-conditioned generation is a downstream demonstration on HumanML3D. For generation on arbitrary
 topologies, SinMDM~\citep{raab2024sinmdm} fits one motion at a time; AnyTop~\citep{gat2025anytop}
-prepends the rest pose as a first frame, adds T5 embeddings of the joint names to every joint token
-and biases attention by graph distance to generate, without text, for the Truebones
-zoo~\citep{truebones}; UniMoGen~\citep{khani2025unimogen} is skeleton-agnostic and controlled by
+generates, without text, across the skeletons of the Truebones zoo~\citep{truebones}; UniMoGen~\citep{khani2025unimogen} is skeleton-agnostic and controlled by
 style and trajectory. Text-conditioned animal motion has been approached from a fixed 35-joint
 SMAL template by OmniMotionGPT~\citep{yang2024omnimotiongpt}, from a shared human--animal topology
 by X-MoGen~\citep{wang2025xmogen} (115 species), across topologies by OmniZoo~\citep{chen2025omnizoo}
@@ -26,8 +24,8 @@ which generates Euler joint rotations without root translation, and, concurrentl
 SAMoR~\citep{samor2026}, which pools any skeleton into eight part tokens over joint positions and
 velocities and recovers rotations by inverse kinematics, and by UniMate~\citep{mou2026unimate}. \method{} is text-conditioned; it
 denoises a per-joint representation any rig is converted to without a template, retargeting or inverse
-kinematics; it embeds natural-language \emph{descriptions} of the joints with LLM2Vec where AnyTop embeds
-cleaned joint names with T5; and it normalises every (rig, joint, channel) cell with its own statistics, so that
+kinematics; it embeds natural-language \emph{descriptions} of the joints with LLM2Vec; and it normalises
+every (rig, joint, channel) cell with its own statistics, so that
 hundreds of rigs of very different proportions share one network.
 
 \paragraph{Objective, encoders, adaptation and evaluation.} \method{} is a DiT-style
