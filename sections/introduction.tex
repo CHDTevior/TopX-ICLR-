@@ -78,7 +78,7 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
 \end{enumerate}
 
 \paragraph{Results.} One \num{303}M-parameter \method{} trained on all \num{311} rigs is scored by a
-skeleton-aware text--motion evaluator on \num{3{,}899} held-out clips of those rigs: R@1 \num{0.864}
+skeleton-aware text--motion evaluator on \num{3{,}899} held-out clips of those rigs: R@1 \num{0.867}
 against \num{0.904} for the real clips in the same pools, FID \num{0.005} (\S\ref{sec:exp:main}); the
 \num{36}M pilot reaches \num{0.840}. On Truebones rigs never seen in training, a per-rig adapter on
 eight to twenty-six clips lowers the FK--pose gap (the disagreement between the rotation and position

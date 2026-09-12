@@ -515,12 +515,12 @@ Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num
 \begin{table}[h]
 \centering\small
 \caption{Ablations on the \num{36}M pilot at matched optimiser steps (epoch-200 checkpoints;
-validation loss, FK--pose gap, R@1 in pools of 64 and FID on the validation set). The variant without the
+validation loss, FK--pose gap from the validation pass, R@1 in pools of 64 and FID on the validation set). The variant without the
 acceleration term optimises a different objective, so its validation loss is not listed.}\label{tab:ablation}
-\setlength{\tabcolsep}{4pt}
+\footnotesize\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Variant & Val.\ loss$\downarrow$ & FK--pose gap, validation pass (bl)$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
+Variant & Val.\ loss$\downarrow$ & FK--pose gap (bl)$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \midrule
 Full recipe (rest demo, calibrated, $\mathbf{x}$-pred, qk-norm) & \num{0.247} & \num{0.171} & \num{0.821} & \num{0.011} \\
 Motion demonstration in place of the rest frame (App.~\ref{app:demo64}) & \num{0.270} & \num{0.202} & \num{0.822} & \num{0.010} \\
@@ -683,8 +683,8 @@ Epoch & R@1$\uparrow$ & FID$\downarrow$ & R@1$\uparrow$ & FID$\downarrow$ \\
 \paragraph{Model size.} Table~\ref{tab:size} scores three sizes of the same recipe -- width, depth and head count grow
 together, so it measures model size and not the contribution of any one of them -- at the
 same number of optimiser steps and data passes (epoch 200, global batch 128, frozen protocol). Retrieval and FID
-improve monotonically with size; the \num{303}M model at epoch 200 is within a point of R@1 of its epoch-289 checkpoint in
-Table~\ref{tab:main} (\num{0.857} against \num{0.864}), so most of its gain over the pilot comes from
+improve monotonically with size; the \num{303}M model at epoch 200 is about a point of R@1 below its epoch-289 checkpoint in
+Table~\ref{tab:main} (\num{0.857} against \num{0.867}), so most of its gain over the pilot comes from
 size, not from the longer schedule.
 
 \begin{table}[h]
@@ -814,7 +814,7 @@ validation loss. Validation holds \num{3{,}899} clips over \num{311} rigs and tr
 \num{73{,}995} clips. Retrieval pools are formed by chunking the validation set in dataset order
 (rigs sorted by name), so a pool of 64 holds clips of one rig or of neighbouring rigs; the last
 59 clips do not fill a pool and are excluded from the R-precision but not from the FID or the
-matching score.
+matching score. The five sampling seeds averaged in Table~\ref{tab:main} are 7, 13, 23, 31 and 42.
 
 \paragraph{Pool size.} Retrieval among more candidates is harder for the real clips and for the
 generated ones alike, and the pool size is a free parameter of the protocol. Table~\ref{tab:pool}
