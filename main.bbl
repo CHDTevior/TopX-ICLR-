@@ -1,4 +1,4 @@
-\begin{thebibliography}{38}
+\begin{thebibliography}{40}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -15,10 +15,15 @@ Parishad BehnamGhader, Vaibhav Adlakha, Marius Mosbach, Dzmitry Bahdanau, Nicola
 \newblock Llm2vec: Large language models are secretly powerful text encoders.
 \newblock In \emph{COLM}, 2024.
 
-\bibitem[Chen et~al.(2025)Chen, Zhang, Yin, Dou, Chen, Wang, Komura, and Zhang]{chen2025motion2motion}
+\bibitem[Chen et~al.(2025{\natexlab{a}})Chen, Sun, Liu, Chen, and Huang]{chen2025omnizoo}
+Keyi Chen, Mingze Sun, Zhenyu Liu, Zhangquan Chen, and Ruqi Huang.
+\newblock Topology-agnostic animal motion generation from text prompt.
+\newblock \emph{arXiv preprint arXiv:2512.10352}, 2025{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2025{\natexlab{b}})Chen, Zhang, Yin, Dou, Chen, Wang, Komura, and Zhang]{chen2025motion2motion}
 Ling-Hao Chen, Yuhong Zhang, Zixin Yin, Zhiyang Dou, Xin Chen, Jingbo Wang, Taku Komura, and Lei Zhang.
 \newblock Motion2motion: Cross-topology motion transfer with sparse correspondence.
-\newblock In \emph{SIGGRAPH Asia}, 2025.
+\newblock In \emph{SIGGRAPH Asia}, 2025{\natexlab{b}}.
 \newblock arXiv:2508.13139.
 
 \bibitem[Chen et~al.(2023)Chen, Jiang, Liu, Huang, Fu, Chen, and Yu]{chen2023mld}
@@ -73,6 +78,11 @@ Seokhyeon Hong, Chaelin Kim, Serin Yoon, Junghyun Nam, Sihun Cha, and Junyong No
 Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu~Wang, and Weizhu Chen.
 \newblock Lora: Low-rank adaptation of large language models.
 \newblock In \emph{ICLR}, 2022.
+
+\bibitem[Khani et~al.(2025)Khani, Rampini, Atherton, and Roy]{khani2025unimogen}
+Aliasghar Khani, Arianna Rampini, Evan Atherton, and Bruno Roy.
+\newblock Unimogen: Universal motion generation.
+\newblock \emph{arXiv preprint arXiv:2505.21837}, 2025.
 
 \bibitem[Lee et~al.(2023)Lee, Kang, Park, Lee, and Won]{lee2023same}
 Sunmin Lee, Taeho Kang, Jungnam Park, Jehee Lee, and Jungdam Won.
