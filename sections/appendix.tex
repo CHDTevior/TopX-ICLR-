@@ -345,26 +345,8 @@ Dragon & gap & \num{4.458} & \num{0.534} & \num{0.376} & \num{0.312} & \num{0.30
 
 \section{Capabilities of related systems}\label{app:capability}
 
-\begin{table}[h]
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Published systems and what each takes as input. \emph{Topology}: the kinematic tree is an input at
-inference, not fixed by the architecture. \emph{Rotations} / \emph{Root}: joint rotations and a world-space root
-trajectory, not positions a solver must turn back into a pose.}\label{tab:open}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-System & Code & Text & Topology & Rotations & Root \\
-\midrule
-Human T2M~\citep{tevet2023mdm,zhang2024motiondiffuse} & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ \\
-Animal T2M~\citep{wang2025animo,yang2024omnimotiongpt} & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ \\
-AnyTop~\citep{gat2025anytop} & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-\method{} (ours) & --- & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-Table~\ref{tab:open} lists the systems with a public implementation; Table~\ref{tab:capability} adds those
-whose code is not released. Two capabilities separate this task from its neighbours. A caption is not what
+Table~\ref{tab:capability} lists the capabilities of the related systems as described in their papers and
+released code. Two capabilities separate this task from its neighbours. A caption is not what
 AnyTop~\citep{gat2025anytop} conditions on: generation
 selects a character rather than a prompt, and the released code has no classifier-free guidance.
 OmniZoo~\citep{chen2025omnizoo} draws the same line when it chooses its own baselines, excluding AnyTop

@@ -24,7 +24,9 @@ no root translation, and, concurrently with this work, by UniMate~\citep{mou2026
 text-conditioned; it denoises a per-joint representation to which any rig is converted without a template,
 retargeting or inverse kinematics; it embeds natural-language \emph{descriptions} of the joints with LLM2Vec; and it normalises
 every (rig, joint, channel) cell with its own statistics, so that
-hundreds of rigs of very different proportions share one network.
+hundreds of rigs of very different proportions share one network. Among prior systems, none reports the
+combination of text conditioning, an arbitrary kinematic tree at inference and an output the rig plays as
+generated---rotations, no inverse-kinematics fit and a world-space root trajectory (App.~\ref{app:capability}).
 
 \paragraph{Building blocks.} \method{} is a DiT-style
 denoiser~\citep{peebles2023dit} trained with flow matching~\citep{lipman2023flow,liu2023rectified},

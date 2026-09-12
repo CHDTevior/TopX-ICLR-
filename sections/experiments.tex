@@ -106,7 +106,9 @@ FK--pose gap before and after adaptation next to the articulation and jitter of 
 twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, with the largest drop on the two
 rigs farthest from the library, and the TB-only reference sits at $0.08$--$0.21$ (adapter training length:
 App.~\ref{app:extend_more}). Statistics computed from the adaptation clips alone give the same picture: the gap
-collapses to $0.25$--$0.36$ and the jitter excess disappears (Table~\ref{tab:supportonly}).
+collapses to $0.25$--$0.36$ and the jitter excess disappears (Table~\ref{tab:supportonly}). The released AnyTop
+weights were trained on the whole Truebones zoo, including these four rigs; App.~\ref{app:anytop} reports its
+per-rig geometry beside ours as an in-distribution reference.
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}
@@ -129,19 +131,6 @@ Spider (68 j.)  & 26 / 6 & \num{1.896} & \num{0.232} & \num{0.185} & \num{2.87} 
 \bottomrule
 \end{tabular}
 \end{table}
-
-\subsection{Relation to prior work}\label{sec:exp:compare}
-
-\paragraph{Capabilities.} The two capabilities this paper joins are available separately in released
-systems (Table~\ref{tab:open}): those that take the kinematic tree at inference are not text-conditioned, and
-the text-conditioned animal generators are built around one fixed skeleton. \method{} returns rotations and a
-world-space root trajectory the rig plays as generated, and measures that geometry against ground truth
-(Table~\ref{tab:geom}). Table~\ref{tab:capability} adds the systems whose code is not public.
-
-
-\paragraph{AnyTop as an in-distribution reference.} The released AnyTop weights trained on the whole
-Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig geometry
-(App.~\ref{app:anytop}) is a reference for what a model trained on these rigs produces.
 
 \subsection{Ablations}\label{sec:exp:ablation}
 

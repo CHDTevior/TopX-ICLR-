@@ -49,8 +49,8 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
   (\S\ref{sec:exp:main}). A single network trained on \num{311} rigs of 34 to 102 joints generates
   text-conditioned motion for every one of them---per-joint rotations and a world-space root trajectory,
   played directly with no inverse-kinematics fit---at R@1 \num{0.867} against \num{0.904} for the real clips
-  and FID \num{0.005}. Of the systems with a public implementation, none is both text-conditioned and given
-  the kinematic tree at inference (Table~\ref{tab:open}).
+  and FID \num{0.005}. No prior system reports the combination of text conditioning, an arbitrary kinematic
+  tree at inference and an output the rig plays as generated (App.~\ref{app:capability}).
 \item \textbf{Any rigged animation becomes training data, and any rig becomes an input}
   (\S\ref{sec:method:rep}, \S\ref{sec:method:model}). \rep{} converts a clip from its kinematic tree, rest
   pose and motion alone---no template, retargeting, tokeniser or inverse kinematics---and standardising
