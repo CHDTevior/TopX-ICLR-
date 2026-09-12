@@ -29,7 +29,8 @@ and the Truebones arms of \S\ref{sec:exp:extend} use seed 7 and the epoch-214 sn
 adapters. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R-precision at $K{=}1,2,3$ in
 pools of 64 formed by chunking the dataset order (a retrieved motion is correct if it is the caption's own
 clip), the FID on the evaluator's $\ell_2$-normalised embeddings and the text--motion matching score, each
-next to the evaluator's score on the real clips of the same pools (a reference, not a bound). Geometry is
+next to the evaluator's score on the real clips of the same pools (a reference, not a bound); the evaluator
+scores the sampled channels, not the played animation. Geometry is
 measured in world space on the deployable output, the forward kinematics of the predicted rotations. The
 \emph{FK--pose gap} is the mean distance, in the rig's mean bone length, between the forward-kinematised and
 the directly predicted joint positions: a consistency of the two output channels, not a distance to the
@@ -87,8 +88,8 @@ statistics as its only rig-specific input
 captioned Truebones clips, evaluation clips included (\emph{TB-only}). Table~\ref{tab:lora} gives the
 FK--pose gap before and after adaptation next to the articulation and jitter of the same sampled output: eight to
 twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, most on the two rigs farthest
-from the library, and the seen-clip reference sits at $0.08$--$0.21$. Most of that is bought early: the jitter
-is gone within 50--100 epochs and the gap plateaus by 100--150 (Dragon: 450, App.~\ref{app:extend_more}).
+from the library, and the seen-clip reference sits at $0.08$--$0.21$. The jitter is gone within 50--100 epochs
+and the gap plateaus by 100--150 (Dragon: 450, App.~\ref{app:extend_more}).
 Statistics computed from the adaptation clips alone give the same picture: the gap collapses to $0.25$--$0.36$
 and the jitter excess goes (Table~\ref{tab:supportonly}).
 
@@ -132,12 +133,13 @@ Truebones zoo, including the four rigs of Table~\ref{tab:lora}, so its per-rig g
 \subsection{Ablations}\label{sec:exp:ablation}
 
 Table~\ref{tab:simple} removes the ingredients of \S\ref{sec:method:model} and \S\ref{sec:method:objective}
-one at a time from the \num{36}M pilot and adds the construction fixed-skeleton generators are brought to
-variable skeletons with: the joint axis flattened into one token per frame (App.~\ref{app:flat}), on the same
-corpus, objective, group weights, schedule and budget, with \num{5}\% more parameters. The calibrated group
-weights carry \num{0.036}--\num{0.043} of R@1, the geodesic and direction biases with the structural features a
-further \num{0.029}--\num{0.033}, and the joint descriptions none; flattening the joint axis costs
-\num{0.192}--\num{0.201} and multiplies the FID by \num{3.7}.
+one at a time from the \num{36}M pilot and adds the flat construction fixed-skeleton generators are brought to
+variable skeletons with (App.~\ref{app:flat}; same corpus, objective, group weights, schedule and budget, \num{5}\%
+more parameters). The calibrated group
+weights carry \num{0.036}--\num{0.043} of R@1; the joint descriptions none on their own; removing the descriptions
+together with the geodesic and direction biases and the structural features costs a further
+\num{0.029}--\num{0.033}; and flattening the joint axis costs \num{0.192}--\num{0.201} and multiplies the FID by
+\num{3.7}.
 
 \begin{table}[t]
 \centering\small
@@ -160,7 +162,8 @@ Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:geom} measures what the representation buys on the deployable output. The 13-channel AnyTop
+Table~\ref{tab:geom} measures what the representation buys on the deployable output, together with the two
+world-coordinate loss terms it makes writable and the 13-channel layout cannot carry. The 13-channel AnyTop
 layout derived from the same clips is within a point of R@1 of \rep{} at every matched epoch, in its favour,
 and \num{0.008} apart once its objective and partition are matched (App.~\ref{app:ablation_notes},
 Table~\ref{tab:repcontent}): retrieval does not resolve the layout. Geometry does. The two output channels of a
