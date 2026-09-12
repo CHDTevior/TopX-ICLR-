@@ -95,47 +95,42 @@ sample $\hat{\mathbf{x}}_1$, and the velocity-space weight of \citet{li2025jit} 
   \qquad w(t)=\frac{1}{\max(1-t,\,\sigma_{\min})^{2}},
   \label{eq:elem}
 \end{equation}
-with $\mathrm{Huber}_{\delta}(r)=r^{2}$ for $|r|\le\delta$ and $\delta(2|r|-\delta)$ beyond, applied per cell,
-$\sigma_{\min}=0.2$, $\delta=10$ (below the measured 99.99th percentile of the normalised
-targets, \num{11.45}; the knee acts on residuals, and at initialisation it binds on \num{0.015}\% of
-supervised cells, recorded in the calibration artifact) and a
-uniform $t$ sampler (App.~\ref{app:ablation_notes}).
+with $\mathrm{Huber}_{\delta}(r)=r^{2}$ for $|r|\le\delta$ and $\delta(2|r|-\delta)$ beyond, applied per cell;
+$\delta$ sits below the 99.99th percentile of the normalised targets (App.~\ref{app:calib}), $\sigma_{\min}$
+and $\delta$ are given in \S\ref{sec:exp:setup}, and $t$ is sampled uniformly (App.~\ref{app:ablation_notes}).
 
 \paragraph{Grouped loss.} A rig with 102 joints has three times the body cells of one with 34 and
 the same single root row, so a plain mean over cells would drown the root trajectory, heading and
 contact channels---the ones that decide whether a walk is a walk---in body rotations on large rigs.
-We partition the channels into nine groups $g$ (root and body $\times$ position, rotation, velocity;
-contact; root track; heading) and use
+We partition the channels into nine groups $g$: position, rotation and velocity, each for the root and
+for the body, plus contact, root track and heading, and use
 \begin{equation}
   \mathcal{L}=\sum_{g}\gamma_g\sqrt{\frac{N_g}{N}}\;\bar{\ell}_g,
   \label{eq:grouped}
 \end{equation}
 where $\bar{\ell}_g$ is the masked mean of Eq.~(\ref{eq:elem}) over the $N_g$ valid cells of group
-$g$ in the batch and $N=\sum_g N_g$; the groups are the nine channel families of Table~\ref{tab:channels}, weighted to a target share profile~\citep{rempe2026kimodo}.
+$g$ in the batch and $N=\sum_g N_g$; the $\gamma_g$ are set by the calibration below, following the
+target-share weighting of Kimodo~\citep{rempe2026kimodo}.
 Under this weighting the explicit $N_g$ dependence of the output-gradient energy of group $g$
 cancels: it is proportional to $\gamma_g^{2}Q_g$, where $Q_g$ is the group's mean weighted squared
 residual, so a group's weight in $\partial\mathcal{L}/\partial\hat{\mathbf{x}}_1$ no longer grows
-with the number of cells the group spans in the batch (App.~\ref{app:calib}). The shares realised during
-training still follow the evolving residuals; the weighting removes the joint-count bias, it does not
-fix the shares.
+with the number of cells the group spans in the batch (App.~\ref{app:calib}).
 
 \paragraph{Calibration.} The $\gamma_g$ are not hand-tuned. A target share profile over channel
-families is pre-registered, the group energies $E_g$ are measured over one pass of the training set
+families is fixed in advance, the group energies $E_g$ are measured over one pass of the training set
 under exactly the training crops and masks, and the weights are solved as
-$\gamma=\sqrt{\text{share}/E}$, with the rotation family anchored at $\gamma{=}10$ and the others solved
-relative to it. A \emph{mechanism check} then takes 30 optimiser-free steps of a small arm model and verifies that
-every family's measured share of $\|\partial\mathcal{L}/\partial\hat{\mathbf{x}}_1\|^{2}$, accumulated
-over those steps, matches the $\gamma_g^{2}Q_g$ prediction within 25\%. It certifies the wiring of the
-weights, not that the pre-registered profile is realised during training: the realised share moves with
-the error energies, which evolve (App.~\ref{app:calib}).
+$\gamma=\sqrt{\text{share}/E}$, with the rotation family anchored at $\gamma_{\mathrm{rot}}$
+(\S\ref{sec:exp:setup}) and the others solved relative to it. A \emph{mechanism check} then takes a few
+optimiser-free steps of a small model of the same recipe and verifies that every family's measured share of
+$\|\partial\mathcal{L}/\partial\hat{\mathbf{x}}_1\|^{2}$ matches the $\gamma_g^{2}Q_g$ prediction
+(App.~\ref{app:calib}). It certifies the wiring of the weights, not that the profile fixed in advance is
+realised during training: the realised share moves with the error energies, which evolve.
 
-\paragraph{Auxiliary terms.} A forward-kinematics consistency term between predicted positions and
-positions forward-kinematised from predicted rotations, a velocity term on world joint displacements,
-a foot-lock term gated by the contact channel, and an acceleration-matching term are added, none of them
-carrying the time weight $w(t)$ (App.~\ref{app:calib}).
-
-\paragraph{Optimisation.} AdamW with warm-up, cosine decay, gradient clipping and rejection of any step
-whose pre-clipping gradient norm exceeds a threshold; all values are in \S\ref{sec:exp:setup}.
+\paragraph{Auxiliary terms.} Four terms are added with weights $\lambda_{\mathrm{FK}}$,
+$\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{lock}}$ and $\lambda_{\mathrm{acc}}$ (\S\ref{sec:exp:setup}), none
+carrying the time weight $w(t)$: a forward-kinematics consistency term between predicted positions and
+positions forward-kinematised from predicted rotations, a velocity term on world joint displacements, a
+foot-lock term gated by the contact channel, and an acceleration-matching term (App.~\ref{app:calib}).
 
 \subsection{Sampling}\label{sec:method:sampling}
 Samples follow the straight path with Euler steps

@@ -20,8 +20,9 @@ pipeline (\num{802} captioned), each rig split $80/20$ into train and validation
 
 \paragraph{Models and optimisation.} Table~\ref{tab:hparams} lists every symbol of \S\ref{sec:method} with
 its value. The \num{36}M pilot shares every setting of the main model except size, learning rate and length
-of training, and is used for the ablations. Both train with AdamW in bf16 on 8 H200 GPUs (\num{578} steps per
-epoch); the main model's best validation loss falls at epoch 289, the checkpoint scored throughout.
+of training, and is used for the ablations. Both train with AdamW---warm-up, cosine decay, gradient clipping and
+rejection of any step whose pre-clipping gradient norm exceeds a threshold---in bf16 on 8 H200 GPUs (\num{578}
+steps per epoch); the main model's best validation loss falls at epoch 289, the checkpoint scored throughout.
 
 
 \paragraph{Protocol.} Generation uses 20 Euler steps and text guidance $s{=}2$ everywhere
@@ -89,6 +90,7 @@ $\epsilon_\sigma$ & std floor of a cell & 0.05 & -- & warm-up steps; epochs & 4k
 $g_{\max}$ & hop-distance clip & 8 & -- & cosine floor & $10^{-2}$ over 40 epochs \\
 $a_{\max}$ & LCA hop clip & 15 & -- & gradient clip; spike reject & 1.0; 200 \\
 $p_{\mathrm{drop}}$ & caption dropout & 0.1 & $S$, $s$ & Euler steps, guidance & 20, 2 \\
+\multicolumn{6}{@{}l@{}}{$\lambda_{\mathrm{FK}},\lambda_{\mathrm{vel}},\lambda_{\mathrm{lock}},\lambda_{\mathrm{acc}}$\quad auxiliary weights: 0.07 (ramped over the first 5k steps), 0.01, 0.01, 1.0} \\
 \bottomrule
 \end{tabular}
 \end{table}

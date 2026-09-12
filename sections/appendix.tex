@@ -130,6 +130,10 @@ limb'' are distinguishable; padded joints receive $-10^{4}$.
 
 \section{Calibration of the grouped objective}\label{app:calib}
 
+\paragraph{Huber knee.} The knee $\delta=10$ lies below the measured 99.99th percentile of the normalised
+targets (\num{11.45}); it acts on residuals, and at initialisation it binds on \num{0.015}\% of the supervised
+cells, a figure recorded in the calibration artifact.
+
 \paragraph{Auxiliary terms.} Four terms are added, none carrying the time weight $w(t)$: a
 forward-kinematics consistency term between the predicted positions and the positions
 forward-kinematised from the predicted rotations, in de-normalised coordinates (weight 0.07, ramped
