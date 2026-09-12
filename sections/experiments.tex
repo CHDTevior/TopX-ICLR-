@@ -43,29 +43,30 @@ Table~\ref{tab:main} reports text-to-motion retrieval on the validation set. All
 training, so this measures the generation of held-out clips on known rigs; rigs outside the library are
 the subject of \S\ref{sec:exp:extend}. The \num{303}M
 model reaches R@1 \num{0.867} against \num{0.904} for the real clips scored by the same evaluator
-in the same pools, a text--motion matching score of \num{0.764} against \num{0.782}, and an FID of
-\num{0.005}; the \num{36}M pilot, trained on the same data with the same recipe, reaches R@1
-\num{0.840} and FID \num{0.008}. The pools follow the dataset order, so a pool holds clips of one
-rig or of neighbouring rigs; R-precision uses the \num{3{,}840} clips of the 60 complete pools, the
-matching score and the FID all \num{3{,}899}.
+in the same pools, a text--motion matching score of \num{0.764} against \num{0.782}, an FID of
+\num{0.005} and the real clips' Diversity (\num{1.400} against \num{1.399}); the \num{36}M pilot reaches R@1
+\num{0.840} and FID \num{0.008}. The pools follow the dataset order;
+R-precision uses the \num{3{,}840} clips of the 60 complete pools, the other columns all \num{3{,}899}.
 
 \begin{table}[t]
 \centering
 \caption{Text-to-motion generation on the validation set (\num{3{,}899} clips over \num{311} rigs; 60 pools
 of 64, 20 steps, $s{=}2$; Table~\ref{tab:pool} gives the other pool sizes). Each model row is the mean over five
-sampling seeds with the half-width of the 95\% interval; the reference row scores the
-real clips with the same evaluator in the same pools and does not depend on the seed. R-precision is text$\rightarrow$motion; Match is the mean
-text--motion cosine; FID is on the evaluator's normalised embeddings.}\label{tab:main}
+sampling seeds with the half-width of the 95\% interval; the reference row scores the real clips with the same
+evaluator in the same pools. R-precision is text$\rightarrow$motion; Match is the mean text--motion cosine; FID is
+on the evaluator's normalised embeddings; Diversity ($\rightarrow$: nearer the real clips' value) and MModality
+follow \citet{guo2022generating} (App.~\ref{app:metrics}).}\label{tab:main}
 \small\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcccccc}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccccc c}
 \toprule
-& Params & R@1$\uparrow$ & R@2$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ & Matching$\uparrow$ \\
+& R@1$\uparrow$ & R@2$\uparrow$ & R@3$\uparrow$ & FID$\downarrow$ & Matching$\uparrow$ & Diversity$\rightarrow$ & MModality$\uparrow$ \\
 \midrule
-Real clips (reference) & -- & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.782} \\
-\method{} (pilot) & \num{36}M & \num{0.840}$\pm$\num{0.003} & \num{0.957}$\pm$\num{0.003} & \num{0.981}$\pm$\num{0.003} & \num{0.0082}$\pm$\num{0.0001} & \num{0.746}$\pm$\num{0.001} \\
-\method{} & \num{303}M & \num{0.867}$\pm$\num{0.003} & \num{0.972}$\pm$\num{0.001} & \num{0.990}$\pm$\num{0.001} & \num{0.0050}$\pm$\num{0.0001} & \num{0.764}$\pm$\num{0.001} \\
+Real clips (reference) & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.782} & \num{1.399}$\pm$\num{0.002} & -- \\
+\method{} \num{36}M (pilot) & \num{0.840}$\pm$\num{0.003} & \num{0.957}$\pm$\num{0.003} & \num{0.981}$\pm$\num{0.003} & \num{0.0082}$\pm$\num{0.0001} & \num{0.746}$\pm$\num{0.001} & \num{1.400}$\pm$\num{0.004} & \num{0.247} \\
+\method{} \num{303}M & \num{0.867}$\pm$\num{0.003} & \num{0.972}$\pm$\num{0.001} & \num{0.990}$\pm$\num{0.001} & \num{0.0050}$\pm$\num{0.0001} & \num{0.764}$\pm$\num{0.001} & \num{1.400}$\pm$\num{0.002} & \num{0.197} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[t]
@@ -98,11 +99,9 @@ and the jitter excess goes (Table~\ref{tab:supportonly}).
 \caption{Extending \method{} (\num{303}M) to four Truebones rigs, each arriving with its own per-cell
 statistics and masks. \emph{zero}: the library model served with those statistics and nothing
 else, with no update of any kind; \emph{LoRA}: the per-rig adapter; \emph{TB-only}: a \num{36}M model trained
-on all Truebones clips including these. All three columns are read off the same generated sequences: the gap is
-the mean distance between the two decodings of a sample --- its direct joint positions and the forward kinematics
-of its predicted rotations --- in the rig's mean rest bone length, where the two decodings of a ground-truth clip
-agree to \num{1e-7}; articulation and jitter are of the sampled FK output relative to all real
-clips of the rig (1 = real). Settings and further arms: App.~\ref{app:lora}, \ref{app:extend_more}.}\label{tab:lora}
+on all Truebones clips including these. All columns are read off the same generated sequences: the gap is the
+FK--pose gap of \S\ref{sec:exp:setup} (the two decodings of a real clip agree to \num{1e-7}); articulation and
+jitter are of the sampled FK output relative to all real clips of the rig (1 = real). Settings and further arms: App.~\ref{app:lora}, \ref{app:extend_more}.}\label{tab:lora}
 \begin{tabular}{@{}llccccccccc@{}}
 \toprule
 & & \multicolumn{3}{c}{FK--pose gap, sampled (bl)$\downarrow$} & \multicolumn{3}{c}{Articulation ratio} & \multicolumn{3}{c}{Jitter ratio} \\

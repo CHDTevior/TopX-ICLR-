@@ -480,7 +480,7 @@ Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & lat
 \end{tabular}
 \end{table}
 
-\section{Geometric metrics}\label{app:metrics}
+\section{Metric definitions}\label{app:metrics}
 
 The Truebones experiments (\S\ref{sec:exp:extend}) and the geometry tables are measured in world space on
 the deployable output, the forward kinematics of the predicted rotations. The \emph{articulation ratio} is the
@@ -491,6 +491,14 @@ identically. The FK--pose gap of the library ablations is read from the training
 stated epoch (App.~\ref{app:calib}); on the Truebones arms and on the frozen samples of Tables~\ref{tab:geom}
 and~\ref{tab:physical} it is measured on the generated sequences themselves, so that it comes from the same
 output as the articulation and jitter reported beside it.
+
+\paragraph{Diversity and MModality.} Both follow \citet{guo2022generating} on the evaluator's normalised motion
+embeddings. Diversity is the mean Euclidean distance between two lists of 300 clips drawn without replacement from
+the \num{3{,}899} generated (or real) clips, computed once per sampling seed on the samples of Table~\ref{tab:main}
+and averaged over the five seeds. MModality generates 30 samples for each of \num{403} captions (one caption per
+rig-shard of the validation order, seeds 101--130, the sampler of \S\ref{sec:method:sampling}) and averages the
+distance over ten pairs per caption; the pairing is drawn 500 times and averaged, which removes the variance of a
+single draw. Real clips have one sample per caption, so the reference row has no MModality.
 
 \section{Ablation notes}\label{app:ablation_notes}
 
