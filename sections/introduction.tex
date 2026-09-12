@@ -63,10 +63,10 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
 \item \textbf{An objective and a recipe under which this heterogeneity trains, up to 0.3B}
   (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies, so a 102-joint
   rig's body rotations do not drown its root, contact and trajectory channels; calibrated rather than
-  uniform weights are worth \num{0.036}--\num{0.043} of R@1 and 61\% of the FID. Query--key normalisation
+  uniform weights are worth \num{0.036}--\num{0.043} of R@1 and reduce the FID by \num{38}\%. Query--key normalisation
   is what makes the 0.3B model trainable, where every attempt without it diverged, and retrieval and FID
   improve monotonically from \num{36}M to \num{303}M parameters at a matched number of optimiser steps.
-\item \textbf{A character the model has never seen works, and a few clips make it exact}
+\item \textbf{A rig the model has never seen generates with no weight update, and a few clips bring its two output channels into agreement}
   (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). A rig outside the library generates through the same
   forward pass with no training of any kind; a per-rig low-rank adapter on eight to twenty-six clips brings
   its rotation and position channels into agreement on bodies far from the training distribution---a
