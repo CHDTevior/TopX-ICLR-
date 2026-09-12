@@ -18,14 +18,14 @@ $\epsilon_\sigma{=}0.05$ (\S\ref{sec:method:rep}); validation holds \num{3{,}899
 the Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs converted to \rep{} with the same
 pipeline (\num{802} captioned), each rig split $80/20$ into train and validation clips.
 
-\paragraph{Models.} The main model has \num{303}M parameters (14 blocks, width 896, 14 heads);
-a \num{36}M pilot (8 blocks, width 384, 6 heads) shares every other setting and is used for
-ablations. Both train at global batch 128 with the calibrated objective, the main model for
-\num{290} epochs at $1.5{\times}10^{-4}$ and the pilot for 400 at $2{\times}10^{-4}$, with a
-4{,}000-step warm-up and a half-cosine decay over 40 epochs to $1\%$ of the peak.
+\paragraph{Models and optimisation.} Table~\ref{tab:hparams} lists every symbol of \S\ref{sec:method} with
+its value. The \num{36}M pilot shares every setting of the main model except size, learning rate and length
+of training, and is used for the ablations. Both train with AdamW in bf16 on 8 H200 GPUs (\num{578} steps per
+epoch); the main model's best validation loss falls at epoch 289, the checkpoint scored throughout.
+
 
 \paragraph{Protocol.} Generation uses 20 Euler steps and text guidance $s{=}2$ everywhere
-(\S\ref{sec:method:sampling}), at the length of the real clip (at most 240 frames), from the epoch-289
+(\S\ref{sec:method:sampling}), at the length of the real clip (at most $L$ frames), from the epoch-289
 checkpoint; Table~\ref{tab:main} is the mean of five sampling seeds, every other library table uses seed 42,
 and the Truebones arms of \S\ref{sec:exp:extend} use seed 7 and the epoch-214 snapshot that initialised the
 adapters. Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R-precision at $K{=}1,2,3$ in
@@ -70,6 +70,27 @@ Real clips (reference) & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.78
 \method{} \num{303}M & \num{0.867}$\pm$\num{0.003} & \num{0.972}$\pm$\num{0.001} & \num{0.990}$\pm$\num{0.001} & \num{0.0050}$\pm$\num{0.0001} & \num{0.764}$\pm$\num{0.001} & \num{1.400}$\pm$\num{0.002} & \num{0.197} \\
 \bottomrule
 \end{tabular}}
+\end{table}
+
+\begin{table}[t]
+\centering\small\setlength{\tabcolsep}{3pt}
+\caption{Symbols of \S\ref{sec:method} and their values. Two values are the \num{303}M main model / the
+\num{36}M pilot; one value is shared.}\label{tab:hparams}
+\begin{tabular}{@{}llr@{\hskip 10pt}llr@{}}
+\toprule
+\multicolumn{3}{@{}l}{Architecture, representation, conditioning} & \multicolumn{3}{l@{}}{Objective, optimisation, sampling} \\
+\midrule
+$D$ & width & 896 / 384 & $\sigma_{\min}$ & time-weight floor, Eq.~(\ref{eq:elem}) & 0.2 \\
+$N_b$ & blocks & 14 / 8 & $\delta$ & Huber knee, Eq.~(\ref{eq:elem}) & 10 \\
+$H$ & heads & 14 / 6 & $\gamma_{\mathrm{rot}}$ & rotation-family anchor & 10 \\
+-- & parameters & \num{302.9}M / \num{36.3}M & $\eta$ & peak learning rate & $1.5$ / $2\times10^{-4}$ \\
+$L$ & target frames & 240 & $B$ & global batch & 128 \\
+$\epsilon_\sigma$ & std floor of a cell & 0.05 & -- & warm-up steps; epochs & 4k; 290 / 400 \\
+$g_{\max}$ & hop-distance clip & 8 & -- & cosine floor & $10^{-2}$ over 40 epochs \\
+$a_{\max}$ & LCA hop clip & 15 & -- & gradient clip; spike reject & 1.0; 200 \\
+$p_{\mathrm{drop}}$ & caption dropout & 0.1 & $S$, $s$ & Euler steps, guidance & 20, 2 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[t]

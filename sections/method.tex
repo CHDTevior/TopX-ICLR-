@@ -3,7 +3,7 @@
 A rig $\mathcal{R}=(\mathcal{T},\mathbf{p}^{\mathrm{rest}},\mathcal{D})$ is a kinematic tree
 $\mathcal{T}$ over $J$ joints, a rest pose $\mathbf{p}^{\mathrm{rest}}\in\mathbb{R}^{J\times3}$ and
 a natural-language description $\mathcal{D}=\{d_j\}_{j=1}^{J}$ of its joints. A motion is a tensor
-$\mathbf{x}\in\mathbb{R}^{T\times J\times 17}$ in the \rep{} representation of
+$\mathbf{x}\in\mathbb{R}^{L\times J\times 17}$ in the \rep{} representation of
 \S\ref{sec:method:rep}. Given $\mathcal{R}$ and a caption $c$, \method{} samples
 $\mathbf{x}\sim p_\theta(\mathbf{x}\mid\mathcal{R},c)$ with one transformer shared by every rig
 (\S\ref{sec:method:model}), trained by a calibrated grouped flow-matching objective
@@ -13,7 +13,7 @@ forward pass and, when a few clips are available, by a per-rig LoRA
 (\S\ref{sec:method:lora}); all retrieval metrics come from a skeleton-aware evaluator
 (\S\ref{sec:method:eval}).
 
-\subsection{\rep{}: a per-joint representation any rig can be converted to}\label{sec:method:rep}
+\subsection{\rep{}: a per-joint representation for any rig}\label{sec:method:rep}
 
 \paragraph{Channels.} Every joint carries the same 17 channels (Table~\ref{tab:channels} in App.~\ref{app:rep}). Positions
 are expressed relative to the root's own ground-plane track, with height absolute, so
@@ -46,43 +46,43 @@ character~\citep{chen2025motion2motion}. The library, its split and the conversi
 \paragraph{Tokens and layout.} One token per frame and joint (Figure~\ref{fig:teaser}, \emph{any rig
 $\to$ tokens}): the 17 channels of a cell are projected to width $D$ and receive a frame-index and a
 joint-slot embedding. The sequence is $[\,\mathbf{x}^{\mathrm{demo}}\mid\mathbf{x}_t^{\mathrm{tgt}}\,]$
-along time: one clean frame holding the rig's analytic rest pose, never noised, followed by the
-$T{=}240$ target frames that carry the flow interpolant, a learned marker, and are the only frames
-denoised and scored. Under the rest-delta parameterisation the rest frame's rotations are the identity
+along time: one clean frame holding the rig's analytic rest pose, never noised, followed by the $L$
+target frames (\S\ref{sec:exp:setup}), which carry the flow interpolant and a learned marker and are the
+only frames denoised and scored. Under the rest-delta parameterisation the rest frame's rotations are the identity
 on every rig, so it conveys proportions, joint count and graph rather than motion; after per-cell
 normalisation it also carries the rig's statistics.
 
-\paragraph{Three signals name the skeleton.} Nothing in the network is indexed by rig; what it knows
+\paragraph{Three signals identify the skeleton.} Nothing in the network is indexed by rig; what it knows
 about a body arrives as input (Figure~\ref{fig:teaser}, \emph{token embedding}). \emph{Geometry}: the
 rest frame above. \emph{Identity}: each joint description $d_j$ is embedded once with frozen
-LLM2Vec~\citep{behnamghader2024llm2vec} (4096-d), projected and added to every token of joint $j$;
-descriptions rather than bone names, because ``front left upper leg'' is the same concept on a horse
+LLM2Vec~\citep{behnamghader2024llm2vec} (4096-d), projected and added to every token of joint $j$.
+We use descriptions rather than bone names because ``front left upper leg'' is the same concept on a horse
 and a lizard whereas \texttt{L\_Femur\_02} and \texttt{b\_hindleg\_l\_1} are not, and a new rig's
 naming scheme need never have been seen. \emph{Place in the tree}: an 8-d structural vector per joint
-(rest-offset direction, bone length, tree depth, root-path length, child count, leaf flag), through a
-zero-initialised MLP, added to the same tokens.
+(rest-offset direction, bone length, tree depth, root-path length, child count, leaf flag) passes
+through a zero-initialised MLP and is added to the same tokens.
 
-\paragraph{The graph enters as an attention bias.} Each of the 14 blocks factorises attention over the
+\paragraph{The graph enters as an attention bias.} Each of the $N_b$ blocks factorises attention over the
 two token axes (Figure~\ref{fig:teaser}, \emph{transformer}): temporal attention, one joint over its
 frames; spatial attention, one frame over its joints; then a $4\times$ MLP. Only the spatial attention
 sees the kinematic tree, as an additive per-head bias on the logits between joints $i$ and $j$,
-$b^{(h)}_{ij}=-\min(g_{ij},8)+u^{(h)}_{a_{ij}}+d^{(h)}_{s_{ij}}$, where $g_{ij}$ is the hop distance on
-the tree and $a_{ij},s_{ij}$ the hops up and down to the lowest common ancestor (clipped at 15), with
-$u,d$ zero-initialised tables. Nearer joints attend more by default, and the tables let a head tell
-parent from child and a joint of the same limb from one across the body (App.~\ref{app:model}). The
+$b^{(h)}_{ij}=-g_{ij}+u^{(h)}_{a_{ij}}+d^{(h)}_{s_{ij}}$, where $g_{ij}$ is the hop distance on the tree,
+clipped at $g_{\max}$, $a_{ij},s_{ij}$ are the hops up and down to the lowest common ancestor, clipped at
+$a_{\max}$ (\S\ref{sec:exp:setup}), and $u,d$ are zero-initialised per-head tables. Nearer joints attend
+more by default, and the tables let a head tell parent from child, and a joint on the same limb from one
+across the body (App.~\ref{app:model}). The
 tree is a soft prior on a fully connected joint attention, not a fixed layer, so one network serves
 any joint count and topology.
 
-\paragraph{Text and time modulate.} $\mathbf{c}=\mathrm{MLP}(t)+\mathrm{MLP}(\mathbf{e}_c)$, with
-$\mathbf{e}_c$ the pooled LLM2Vec caption embedding, drives AdaLN~\citep{peebles2023dit} shift, scale
-and gate on every sub-layer and shift and scale on the output head, so text reaches the model only
-through modulation and the token stream stays kinematic. The caption is dropped with probability 0.1
-for classifier-free guidance; the rest-pose prompt is never dropped.
+\paragraph{Text and time modulate.} The conditioning vector
+$\mathbf{c}=\mathrm{MLP}(t)+\mathrm{MLP}(\mathbf{e}_c)$, with $\mathbf{e}_c$ the pooled LLM2Vec caption
+embedding, drives the AdaLN~\citep{peebles2023dit} shift, scale and gate of every sub-layer (shift and scale
+only on the output head), so text reaches the model only through modulation and the token stream stays
+kinematic. The caption is dropped with probability $p_{\mathrm{drop}}$ (\S\ref{sec:exp:setup}) for
+classifier-free guidance; the rest-pose prompt is never dropped.
 
-\paragraph{Scale and stability.} Width 896, 14 heads, \num{302.9}M parameters. Queries and keys are
-RMS-normalised per head before the dot product~\citep{dehghani2023vit22b}: every 0.3B attempt without
-it diverged, with attention logits growing from $\sim$1.4k to 23k; with it the eight probes taken
-through epoch 199 of the \num{303}M run peak at \num{28.1}.
+\paragraph{Stability.} Queries and keys are RMS-normalised per head before the dot
+product~\citep{dehghani2023vit22b}; without it, every attempt at 0.3B diverged (App.~\ref{app:ablation_notes}).
 
 \subsection{Calibrated grouped flow-matching objective}\label{sec:method:objective}
 
@@ -110,7 +110,7 @@ contact; root track; heading) and use
   \mathcal{L}=\sum_{g}\gamma_g\sqrt{\frac{N_g}{N}}\;\bar{\ell}_g,
   \label{eq:grouped}
 \end{equation}
-where $\bar{\ell}_g$ is the masked mean of Eq.~\eqref{eq:elem} over the $N_g$ valid cells of group
+where $\bar{\ell}_g$ is the masked mean of Eq.~(\ref{eq:elem}) over the $N_g$ valid cells of group
 $g$ in the batch and $N=\sum_g N_g$; the groups are the nine channel families of Table~\ref{tab:channels}, weighted to a target share profile~\citep{rempe2026kimodo}.
 Under this weighting the explicit $N_g$ dependence of the output-gradient energy of group $g$
 cancels: it is proportional to $\gamma_g^{2}Q_g$, where $Q_g$ is the group's mean weighted squared
@@ -134,10 +134,8 @@ positions forward-kinematised from predicted rotations, a velocity term on world
 a foot-lock term gated by the contact channel, and an acceleration-matching term are added, none of them
 carrying the time weight $w(t)$ (App.~\ref{app:calib}).
 
-\paragraph{Optimisation.} AdamW, learning rate $1.5\times10^{-4}$ at global batch 128 (the
-\num{36}M pilot: $2\times10^{-4}$), 4k warm-up steps, cosine decay to a $10^{-2}$ floor over 40
-epochs, bf16, gradient clipping at 1.0, and rejection of any step whose pre-clipping gradient norm
-exceeds $200$; 8 H200 GPUs, \num{578} steps per epoch, \num{290} epochs (best validation loss at 289).
+\paragraph{Optimisation.} AdamW with warm-up, cosine decay, gradient clipping and rejection of any step
+whose pre-clipping gradient norm exceeds a threshold; all values are in \S\ref{sec:exp:setup}.
 
 \subsection{Sampling}\label{sec:method:sampling}
 Samples follow the straight path with Euler steps
