@@ -96,25 +96,24 @@ captions.}\label{fig:qual}
 \subsection{Extending the model to rigs it has never seen}\label{sec:exp:extend}
 
 \paragraph{Zero training and per-rig LoRA.} We take four Truebones rigs that differ from the library in body
-plan and joint count -- Buffalo (30 joints), Gazelle (29), Dragon (95, a flying rig) and Spider (68) -- and
+plan and joint count---Buffalo (30 joints), Gazelle (29), Dragon (95, a flying rig) and Spider (68)---and
 compare three arms on the same held-out clips of each: (a) the library model with the new rig's per-cell
 statistics as its only rig-specific input
 (\emph{zero training}); (b) a per-rig low-rank adapter trained on the rig's 8--26 training clips
 (\emph{LoRA}, \S\ref{sec:method:lora}); (c) a \num{36}M model of the same recipe trained on all \num{802}
 captioned Truebones clips, evaluation clips included (\emph{TB-only}). Table~\ref{tab:lora} gives the
 FK--pose gap before and after adaptation next to the articulation and jitter of the same sampled output: eight to
-twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, most on the two rigs farthest
-from the library, and the seen-clip reference sits at $0.08$--$0.21$. The jitter is gone within 50--100 epochs
-and the gap plateaus by 100--150 (Dragon: 450, App.~\ref{app:extend_more}).
-Statistics computed from the adaptation clips alone give the same picture: the gap collapses to $0.25$--$0.36$
-and the jitter excess goes (Table~\ref{tab:supportonly}).
+twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, with the largest drop on the two
+rigs farthest from the library, and the TB-only reference sits at $0.08$--$0.21$ (adapter training length:
+App.~\ref{app:extend_more}). Statistics computed from the adaptation clips alone give the same picture: the gap
+collapses to $0.25$--$0.36$ and the jitter excess disappears (Table~\ref{tab:supportonly}).
 
 \begin{table}[t]
 \centering\footnotesize\setlength{\tabcolsep}{3.5pt}
-\caption{Extending \method{} (\num{303}M) to four Truebones rigs, each arriving with its own per-cell
+\caption{Extending \method{} (\num{303}M) to four Truebones rigs, each supplied with its own per-cell
 statistics and masks. \emph{zero}: the library model served with those statistics and nothing
 else, with no update of any kind; \emph{LoRA}: the per-rig adapter; \emph{TB-only}: a \num{36}M model trained
-on all Truebones clips including these. All columns are read off the same generated sequences: the gap is the
+on all Truebones clips including these. All columns are computed from the same generated sequences: the gap is the
 FK--pose gap of \S\ref{sec:exp:setup} (the two decodings of a real clip agree to \num{1e-7}); articulation and
 jitter are of the sampled FK output relative to all real clips of the rig (1 = real). Settings and further arms: App.~\ref{app:lora}, \ref{app:extend_more}.}\label{tab:lora}
 \begin{tabular}{@{}llccccccccc@{}}
