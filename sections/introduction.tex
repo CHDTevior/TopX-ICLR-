@@ -46,36 +46,33 @@ per-joint rotations and a world-space root trajectory, with no inverse-kinematic
 
 \paragraph{Contributions.}
 \begin{enumerate}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{\rep{}, a per-joint representation with per-cell normalisation}
-  (\S\ref{sec:method:rep}). Every joint carries the same 17 channels---position, rotation as a 6D
-  delta from the rest pose, velocity, contact, plus a root-only world trajectory and heading---and
-  every (rig, joint, channel) cell is standardised by its own statistics. Any rigged animation
-  converts to it from its kinematic tree, rest pose and motion, with no template, retargeting,
-  tokenizer or inverse kinematics. Standardising per cell, rather than per rig, raises R@1 by 1.7--2.0
-  points and lowers the FID by 22--30\% at each of three matched epochs; against the 13-channel AnyTop
-  layout derived from the same clips, the layout with its world-coordinate loss terms keeps leaf-joint
-  articulation, foot contact and root travel, while the two layouts sit within \num{0.007} of R@1 of each
-  other (\S\ref{sec:exp:ablation}).
-\item \textbf{In-context skeleton conditioning} (\S\ref{sec:method:model}). The rest pose is
-  prepended as one clean frame, natural-language descriptions of the joints (``left front lower
-  leg'', ``tail segment 3'') are added to their tokens, and spatial attention is biased by tree
-  distance. The network holds no per-skeleton parameter: joints occupy positions in a learned table
-  of 160 slots in the order the rig lists them, and a slot carries no rig-specific weight, so a new rig
-  is a new set of inputs. A joint reaches the network as what it \emph{is} rather than as what it is
-  called, so a rig may arrive under any naming convention.
-\item \textbf{A calibrated grouped flow-matching objective and a recipe that trains at 0.3B}
-  (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies so that
-  the root, contact and trajectory channels of a large rig are not drowned by its many body
-  rotations; a mechanism check certifies the calibration before training; query--key normalisation
-  makes the 0.3B model trainable; and retrieval and FID improve monotonically from \num{36}M to
-  \num{303}M parameters at a matched number of optimiser steps.
-\item \textbf{An extension study} (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). A rig outside
-  the library is served by the same forward pass given its rest pose, joint descriptions and per-cell
-  statistics, and a per-rig low-rank adapter trained on eight to twenty-six clips brings its rotation
-  and position channels into agreement on bodies far from the training distribution (a winged
-  dragon, an eight-legged spider); one adapter shared across eight flying rigs removes the same jitter excess
-  on rigs with no adapter of their own, and on the one rig where both exist it comes close to that rig's own
-  adapter.
+\item \textbf{One text-to-motion model for hundreds of production skeletons, returning what the rig plays}
+  (\S\ref{sec:exp:main}). A single network trained on \num{311} rigs of 34 to 102 joints generates
+  text-conditioned motion for every one of them---per-joint rotations and a world-space root trajectory,
+  played directly with no inverse-kinematics fit---at R@1 \num{0.867} against \num{0.904} for the real clips
+  and FID \num{0.005}. Of the systems with a public implementation, none is both text-conditioned and given
+  the kinematic tree at inference (Table~\ref{tab:open}).
+\item \textbf{Any rigged animation becomes training data, and any rig becomes an input}
+  (\S\ref{sec:method:rep}, \S\ref{sec:method:model}). \rep{} converts a clip from its kinematic tree, rest
+  pose and motion alone---no template, retargeting, tokenizer or inverse kinematics---and standardising
+  every (rig, joint, channel) cell by its own statistics is what lets rigs of very different proportions
+  share one network: 1.7--2.0 points of R@1 and 22--30\% of the FID over a per-rig scale at each of three
+  matched epochs. The rig itself enters as a prompt---its rest pose, natural-language descriptions of its
+  joints and its tree distances---so the network holds no per-skeleton parameter and reads no bone name: a
+  new rig, under any naming convention, is a new set of inputs. Every joint carries both positions and
+  rotations, so a sample decodes two ways and their agreement is a number this paper reports throughout.
+\item \textbf{An objective and a recipe under which this heterogeneity trains, up to 0.3B}
+  (\S\ref{sec:method:objective}). Channel groups are weighted from measured group energies, so a 102-joint
+  rig's body rotations do not drown its root, contact and trajectory channels; calibrated rather than
+  uniform weights are worth \num{0.036}--\num{0.043} of R@1 and 61\% of the FID. Query--key normalisation
+  is what makes the 0.3B model trainable, where every attempt without it diverged, and retrieval and FID
+  improve monotonically from \num{36}M to \num{303}M parameters at a matched number of optimiser steps.
+\item \textbf{A character the model has never seen works, and a few clips make it exact}
+  (\S\ref{sec:method:lora}, \S\ref{sec:exp:extend}). A rig outside the library generates through the same
+  forward pass with no training of any kind; a per-rig low-rank adapter on eight to twenty-six clips brings
+  its rotation and position channels into agreement on bodies far from the training distribution---a
+  winged dragon from \num{4.46} to \num{0.30} bone lengths---and one adapter shared across eight flying
+  rigs removes the same jitter excess on rigs with no adapter of their own.
 \end{enumerate}
 
 \paragraph{Results.} One \num{303}M-parameter \method{} trained on all \num{311} rigs is scored by a
