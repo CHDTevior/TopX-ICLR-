@@ -480,6 +480,18 @@ Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & lat
 \end{tabular}
 \end{table}
 
+\section{Geometric metrics}\label{app:metrics}
+
+The Truebones experiments (\S\ref{sec:exp:extend}) and the geometry tables are measured in world space on
+the deployable output, the forward kinematics of the predicted rotations. The \emph{articulation ratio} is the
+mean joint speed relative to the root divided by the real clips' value, the \emph{jitter ratio} the mean second
+temporal difference likewise normalised, and the \emph{root speed ratio} the same for the root. Ratios are taken
+against \emph{all} real clips of the rig at a common 20\,Hz, so that AnyTop samples and ours are measured
+identically. The FK--pose gap of the library ablations is read from the training-time validation pass at the
+stated epoch (App.~\ref{app:calib}); on the Truebones arms and on the frozen samples of Tables~\ref{tab:geom}
+and~\ref{tab:physical} it is measured on the generated sequences themselves, so that it comes from the same
+output as the articulation and jitter reported beside it.
+
 \section{Ablation notes}\label{app:ablation_notes}
 
 \paragraph{What each ingredient is worth.} Table~\ref{tab:simple} prices them one at a time. Every arm is a
@@ -504,29 +516,6 @@ objective, weights, schedule and budget, with the joint axis flattened into one 
 \num{0.192}--\num{0.201} of R@1 and its FID is \num{3.7} times the full recipe's, and it is
 \num{0.123}--\num{0.134} below the arm that keeps per-joint tokens with every skeleton pathway switched off.
 
-\begin{table}[h]
-\centering\small
-\caption{One ingredient at a time, on the \num{36}M pilot. Same clips, cut, split, captions, rest-pose
-demonstration, batch, learning rate, schedule and budget in every row; frozen protocol, pools of 64, 20 Euler
-steps, guidance 2, seed 42. The last row is the adapted
-baseline of App.~\ref{app:flat}, which carries \num{5}\% more parameters than the full
-recipe.}\label{tab:simple}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-& & \multicolumn{3}{c}{R@1$\uparrow$ at epoch} & FID$\downarrow$ \\
-\cmidrule(lr){3-5}
-Arm & Params & 50 & 75 & 100 & at 100 \\
-\midrule
-\rep{} (full recipe)                          & \num{36.3}M & \num{0.798} & \num{0.803} & \num{0.808} & \num{0.0138} \\
-\quad without the joint descriptions          & \num{36.3}M & \num{0.800} & \num{0.806} & \num{0.810} & \num{0.0124} \\
-\quad without the calibrated weights          & \num{36.3}M & \num{0.760} & \num{0.760} & \num{0.772} & \num{0.0222} \\
-\quad without both, and without the graph     & \num{36.1}M & \num{0.731} & \num{0.731} & \num{0.739} & \num{0.0309} \\
-\midrule
-Flat padded joints (App.~\ref{app:flat})      & \num{38.0}M & \num{0.597} & \num{0.603} & \num{0.616} & \num{0.0515} \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{table}[h]
 \centering\small
