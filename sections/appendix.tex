@@ -104,6 +104,22 @@ and the conversion to \rep{} is new.
 
 \section{Model details}\label{app:model}
 
+Figure~\ref{fig:model_details} lays out the \num{303}M model as implemented: tensor shapes along the
+forward pass, what each token receives, the attention bias, the sampler, and the training objective of
+Section~\ref{sec:method:objective} with its auxiliary terms.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/model_details.png}
+\caption{Tensor flow and training details of the \num{303}M model. Solid arrows carry data or state,
+dashed arrows conditioning. Left to right: rig and motion tokens with the 17-channel layout and the validity
+masks; the token embedding and the two conditioning paths (per-joint, and the global vector $\mathbf c$ that
+drives AdaLN); the fourteen factorised blocks with the spatial-attention bias; sampling with caption
+guidance, the 20 Euler steps, de-normalisation and the two decodes. The bottom band lists the training
+inputs, the grouped Huber objective of Eqs.~\eqref{eq:elem}--\eqref{eq:grouped}, the acceleration term
+and the three further auxiliary terms.}\label{fig:model_details}
+\end{figure}
+
 \paragraph{Structure and graph bias.} An 8-d structural vector per joint (unit rest-offset
 direction, log bone length, tree depth, root-path length, child count, leaf flag) enters through a
 zero-initialised MLP. Spatial attention receives a fixed bias $-\min(g_{ij},8)$ from the geodesic
