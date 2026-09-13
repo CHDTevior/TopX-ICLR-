@@ -34,7 +34,7 @@ Truebones rig used in \S\ref{sec:method:lora}.
 
 \paragraph{Per-cell normalisation.} Rigs differ in size, proportion and convention by orders of
 magnitude, so every (rig, joint, channel) cell is standardised with its own mean and standard
-deviation, the latter floored at $\epsilon_\sigma$ (\S\ref{sec:exp:setup}), and cells that are constant across
+deviation, the latter floored at $\epsilon_\sigma$ (Table~\ref{tab:hparams}, App.~\ref{app:training}), and cells that are constant across
 a rig's library, such as never-firing contact flags, are removed from supervision (App.~\ref{app:rep}). The
 statistics are a property of the rig, computed from its motion library and supplied with it at deployment,
 just as motion-transfer tools require example motions of the target
@@ -47,7 +47,7 @@ character~\citep{chen2025motion2motion}. The library, its split and the conversi
 $\to$ tokens}): the 17 channels of a cell are projected to width $D$ and receive a frame-index and a
 joint-slot embedding. The sequence is $[\,\mathbf{x}^{\mathrm{demo}}\mid\mathbf{x}_t^{\mathrm{tgt}}\,]$
 along time: one clean frame holding the rig's analytic rest pose, never noised, followed by the $L$
-target frames (\S\ref{sec:exp:setup}), which carry the flow interpolant and a learned marker and are the
+target frames (Table~\ref{tab:hparams}), which carry the flow interpolant and a learned marker and are the
 only frames denoised and scored. Under the rest-delta parameterisation the rest frame's rotations are the identity
 on every rig, so it conveys proportions, joint count and graph rather than motion; after per-cell
 normalisation it also carries the rig's statistics.
@@ -68,7 +68,7 @@ frames; spatial attention, one frame over its joints; then a $4\times$ MLP. Only
 sees the kinematic tree, as an additive per-head bias on the logits between joints $i$ and $j$,
 $b^{(h)}_{ij}=-g_{ij}+u^{(h)}_{a_{ij}}+d^{(h)}_{s_{ij}}$, where $g_{ij}$ is the hop distance on the tree,
 clipped at $g_{\max}$, $a_{ij},s_{ij}$ are the hops up and down to the lowest common ancestor, clipped at
-$a_{\max}$ (\S\ref{sec:exp:setup}), and $u,d$ are zero-initialised per-head tables. Nearer joints attend
+$a_{\max}$ (Table~\ref{tab:hparams}), and $u,d$ are zero-initialised per-head tables. Nearer joints attend
 more by default, and the tables let a head tell parent from child, and a joint on the same limb from one
 across the body (App.~\ref{app:model}). The
 tree is a soft prior on a fully connected joint attention, not a fixed layer, so one network serves
@@ -78,7 +78,7 @@ any joint count and topology.
 $\mathbf{c}=\mathrm{MLP}(t)+\mathrm{MLP}(\mathbf{e}_c)$, with $\mathbf{e}_c$ the pooled LLM2Vec caption
 embedding, drives the AdaLN~\citep{peebles2023dit} shift, scale and gate of every sub-layer (shift and scale
 only on the output head), so text reaches the model only through modulation and the token stream stays
-kinematic. The caption is dropped with probability $p_{\mathrm{drop}}$ (\S\ref{sec:exp:setup}) for
+kinematic. The caption is dropped with probability $p_{\mathrm{drop}}$ (Table~\ref{tab:hparams}) for
 classifier-free guidance; the rest-pose prompt is never dropped.
 
 \paragraph{Stability.} Queries and keys are RMS-normalised per head before the dot
@@ -97,7 +97,7 @@ sample $\hat{\mathbf{x}}_1$, and the velocity-space weight of \citet{li2025jit} 
 \end{equation}
 with $\mathrm{Huber}_{\delta}(r)=r^{2}$ for $|r|\le\delta$ and $\delta(2|r|-\delta)$ beyond, applied per cell;
 $\delta$ sits below the 99.99th percentile of the normalised targets (App.~\ref{app:calib}), $\sigma_{\min}$
-and $\delta$ are given in \S\ref{sec:exp:setup}, and $t$ is sampled uniformly (App.~\ref{app:ablation_notes}).
+and $\delta$ are given in Table~\ref{tab:hparams}, and $t$ is sampled uniformly (App.~\ref{app:ablation_notes}).
 
 \paragraph{Grouped loss.} A rig with 102 joints has three times the body cells of one with 34 and
 the same single root row, so a plain mean over cells would drown the root trajectory, heading and
@@ -120,14 +120,14 @@ with the number of cells the group spans in the batch (App.~\ref{app:calib}).
 families is fixed in advance, the group energies $E_g$ are measured over one pass of the training set
 under exactly the training crops and masks, and the weights are solved as
 $\gamma=\sqrt{\text{share}/E}$, with the rotation family anchored at $\gamma_{\mathrm{rot}}$
-(\S\ref{sec:exp:setup}) and the others solved relative to it. A \emph{mechanism check} then takes a few
+(Table~\ref{tab:hparams}) and the others solved relative to it. A \emph{mechanism check} then takes a few
 optimiser-free steps of a small model of the same recipe and verifies that every family's measured share of
 $\|\partial\mathcal{L}/\partial\hat{\mathbf{x}}_1\|^{2}$ matches the $\gamma_g^{2}Q_g$ prediction
 (App.~\ref{app:calib}). It certifies the wiring of the weights, not that the profile fixed in advance is
 realised during training: the realised share moves with the error energies, which evolve.
 
 \paragraph{Auxiliary terms.} Four terms are added with weights $\lambda_{\mathrm{FK}}$,
-$\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{lock}}$ and $\lambda_{\mathrm{acc}}$ (\S\ref{sec:exp:setup}), none
+$\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{lock}}$ and $\lambda_{\mathrm{acc}}$ (Table~\ref{tab:hparams}), none
 carrying the time weight $w(t)$: a forward-kinematics consistency term between predicted positions and
 positions forward-kinematised from predicted rotations, a velocity term on world joint displacements, a
 foot-lock term gated by the contact channel, and an acceleration-matching term (App.~\ref{app:calib}).
@@ -137,7 +137,7 @@ Samples follow the straight path with Euler steps
 $\mathbf{x}\leftarrow\mathbf{x}+(\hat{\mathbf{x}}_1-\mathbf{x})/(S-i)$ over $S$ steps; invalid cells are
 projected back to zero after every step, and guidance is applied to the caption only,
 $\hat{\mathbf{x}}_1=\hat{\mathbf{x}}_1^{\varnothing}+s\,(\hat{\mathbf{x}}_1^{c}-\hat{\mathbf{x}}_1^{\varnothing})$
-with guidance scale $s$ (\S\ref{sec:exp:setup}). Twenty steps is the operating point used throughout; ten give the same retrieval at half the
+with guidance scale $s$ (Table~\ref{tab:hparams}). Twenty steps is the operating point used throughout; ten give the same retrieval at half the
 cost, and App.~\ref{app:cost} gives the latency and quality of both.
 
 \subsection{Extending the model to a rig it has never seen}\label{sec:method:lora}
