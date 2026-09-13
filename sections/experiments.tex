@@ -74,8 +74,7 @@ captions.}\label{fig:qual}
 \subsection{Extending the model to rigs it has never seen}\label{sec:exp:extend}
 
 \paragraph{Zero training and per-rig LoRA.} We take four Truebones rigs that differ from the library in body
-plan and joint count (Table~\ref{tab:lora}; the Dragon is a flying rig) and compare three arms on the same
-held-out clips of each: (a) the library model with the new rig's per-cell
+plan and joint count (Table~\ref{tab:lora}) and compare three arms on the same held-out clips of each: (a) the library model with the new rig's per-cell
 statistics as its only rig-specific input
 (\emph{zero training}); (b) a per-rig low-rank adapter trained on the rig's 8--26 training clips
 (\emph{LoRA}, \S\ref{sec:method:lora}); (c) a \num{36}M model of the same recipe trained on all \num{802}
@@ -83,9 +82,9 @@ captioned Truebones clips, evaluation clips included (\emph{TB-only}). Table~\re
 FK--pose gap before and after adaptation next to the articulation and jitter of the same sampled output: eight to
 twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, with the largest drop on the two
 rigs farthest from the library, and the TB-only reference sits at $0.08$--$0.21$; the adapted output's
-articulation and jitter ratios are $0.24$--$0.77$ and $0.20$--$0.86$ (adapter training length:
-App.~\ref{app:extend_more}). Statistics computed from the adaptation clips alone give the same picture: the gap
-collapses to $0.25$--$0.36$ and the jitter excess disappears (Table~\ref{tab:supportonly}); Figure~\ref{fig:tb_main}
+articulation and jitter ratios are $0.24$--$0.77$ and $0.20$--$0.86$ (App.~\ref{app:extend_more}). With
+statistics from the adaptation clips alone, the gap is $0.25$--$0.36$ and the jitter excess is gone
+(Table~\ref{tab:supportonly}); Figure~\ref{fig:tb_main}
 shows the adapted model on the four rigs. The released AnyTop
 weights were trained on the whole Truebones zoo, including these four rigs; App.~\ref{app:anytop} reports its
 per-rig geometry beside ours as an in-distribution reference.
@@ -127,8 +126,7 @@ App.~\ref{app:qual}.}\label{fig:tb_main}
 
 Table~\ref{tab:simple} removes the ingredients of \S\ref{sec:method:model} and \S\ref{sec:method:objective}
 one at a time from the \num{36}M pilot and adds the flat construction by which fixed-skeleton generators are
-usually brought to variable skeletons (App.~\ref{app:flat}; same corpus, objective, group weights, schedule and budget, \num{5}\%
-more parameters). The calibrated group
+usually brought to variable skeletons (App.~\ref{app:flat}; same recipe and budget, \num{5}\% more parameters). The calibrated group
 weights are worth \num{0.036}--\num{0.043} of R@1; the joint descriptions none on their own; removing the descriptions
 together with the geodesic and direction biases and the structural features costs a further
 \num{0.029}--\num{0.033}; and flattening the joint axis costs \num{0.192}--\num{0.201} and multiplies the FID by
