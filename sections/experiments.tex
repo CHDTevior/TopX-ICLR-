@@ -45,7 +45,10 @@ the subject of \S\ref{sec:exp:extend}. The \num{303}M model reaches R@1 \num{0.8
 \num{0.764}, FID \num{0.005} and Diversity \num{1.400}, where the real clips score \num{0.904}, \num{0.782} and
 \num{1.399} under the same evaluator in the same pools; the \num{36}M pilot reaches R@1 \num{0.840} and FID
 \num{0.008}. R-precision uses the \num{3{,}840} clips of the 60 complete pools; the other columns use all
-\num{3{,}899}.
+\num{3{,}899}. One sequence takes \num{4.1}\,s at the protocol's 20 steps on one H200 (batch 1, fp32, 240 padded
+frames) and \num{0.69}\,s for the pilot; halving the steps leaves R@1 unchanged (\num{0.863} against \num{0.864})
+for \num{0.003} of FID (\num{0.005} for the pilot), and five steps cost \num{0.008} of R@1 (Table~\ref{tab:cost}).
+
 
 \begin{table}[t]
 \centering
@@ -66,6 +69,23 @@ Real clips (reference) & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.78
 \method{} \num{303}M & \num{0.867}$\pm$\num{0.003} & \num{0.972}$\pm$\num{0.001} & \num{0.990}$\pm$\num{0.001} & \num{0.0050}$\pm$\num{0.0001} & \num{0.764}$\pm$\num{0.001} & \num{1.400}$\pm$\num{0.002} & \num{0.197} \\
 \bottomrule
 \end{tabular}}
+\end{table}
+
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\caption{Sampling cost and quality against the number of Euler steps ($s{=}2$, seed 42, validation set; runs at 10 and 5 steps
+are stamped as protocol variants). Latency: batch 1, one H200, fp32, 240 padded frames, 38 joints.}\label{tab:cost}
+\begin{tabular}{lccccccc}
+\toprule
+& & \multicolumn{3}{c}{\num{303}M} & \multicolumn{3}{c}{\num{36}M} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ \\
+\midrule
+20 (protocol) & 40 & \num{4083} & \num{0.864} & \num{0.005} & \num{688} & \num{0.840} & \num{0.008} \\
+10 & 20 & \num{2041} & \num{0.863} & \num{0.008} & \num{344} & \num{0.840} & \num{0.013} \\
+5 & 10 & \num{1021} & \num{0.856} & \num{0.013} & \num{172} & \num{0.822} & \num{0.022} \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 
@@ -90,7 +110,10 @@ captioned Truebones clips, evaluation clips included (\emph{TB-only}). Table~\re
 FK--pose gap before and after adaptation next to the articulation and jitter of the same sampled output: eight to
 twenty-six clips bring the gap from $0.57$--$4.5$ bone lengths to $0.23$--$0.35$, with the largest drop on the two
 rigs farthest from the library, and the TB-only reference sits at $0.08$--$0.21$; the adapted output's
-articulation and jitter ratios are $0.24$--$0.77$ and $0.20$--$0.86$ (App.~\ref{app:extend_more}). With
+articulation and jitter ratios are $0.24$--$0.77$ and $0.20$--$0.86$ (App.~\ref{app:extend_more}). The jitter
+excess is gone within 50--100 adapter epochs (\num{50}--\num{300} optimiser steps on the 8--26 clips), and one
+rank-128 adapter pooled over eight flying rigs removes it on all seven scored rigs (median jitter ratio \num{5.5} to
+\num{0.99}; Tables~\ref{tab:lora_len} and~\ref{tab:flyers}). With
 statistics from the adaptation clips alone, the gap is $0.25$--$0.36$ and the jitter excess is gone
 (Table~\ref{tab:supportonly}); Figure~\ref{fig:tb_main}
 shows the adapted model on the four rigs. The released AnyTop
@@ -138,7 +161,9 @@ usually brought to variable skeletons (App.~\ref{app:flat}; same recipe and budg
 weights are worth \num{0.036}--\num{0.043} of R@1; the joint descriptions none on their own; removing the descriptions
 together with the geodesic and direction biases and the structural features costs a further
 \num{0.029}--\num{0.033}; and flattening the joint axis costs \num{0.192}--\num{0.201} and multiplies the FID by
-\num{3.7}.
+\num{3.7}. A 64-frame motion clip of the same rig in the demonstration slot, in place of the rest frame, is equal
+in retrieval (R@1 \num{0.822} against \num{0.821}) and worse where the two representations of a pose have to agree
+(FK--pose gap \num{0.202} against \num{0.171} bone lengths), so we keep the rest frame (App.~\ref{app:demo64}).
 
 \begin{table}[t]
 \centering\small

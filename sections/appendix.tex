@@ -445,9 +445,11 @@ kinematic family, which is the deployable output, and the gap between the two is
 \S\ref{sec:exp:setup}. Joint order is validated against the rig's conditioning table before any
 metric is taken. All sequences, real and generated, are decimated to a common 20\,Hz with an
 anti-aliased polyphase filter when an AnyTop sample is present, and kept at the native 30\,Hz
-otherwise.\section{Sampling cost}\label{app:cost}
+otherwise.
 
-Table~\ref{tab:cost} gives the wall-clock time of one sample at batch size 1 on one H200 GPU in fp32, for the
+\section{Sampling cost}\label{app:cost}
+
+Table~\ref{tab:cost} (\S\ref{sec:exp:main}) gives the wall-clock time of one sample at batch size 1 on one H200 GPU in fp32, for the
 protocol's padded 240-frame sequence of a 38-joint rig (\num{109} of the frames are real), with caption
 guidance (two network evaluations per Euler step), median of five timed runs after two warm-up runs, next to the
 retrieval and FID scores of the same checkpoints at 10 and 5 steps. The time is linear in the number of function
@@ -458,22 +460,6 @@ pilot) and costs \num{0.003}--\num{0.005} in FID; five steps cost \num{0.008} in
 Departures from the 20-step protocol are stamped as such in the evaluation reports (\texttt{protocol.variant}) and
 are never mixed with frozen-protocol numbers.
 
-\begin{table}[h]
-\centering\footnotesize\setlength{\tabcolsep}{4pt}
-\caption{Sampling cost and quality against the number of Euler steps ($s{=}2$, seed 42, validation set; runs at 10 and 5 steps
-are stamped as protocol variants). Latency: batch 1, one H200, fp32, 240 padded frames, 38 joints.}\label{tab:cost}
-\begin{tabular}{lccccccc}
-\toprule
-& & \multicolumn{3}{c}{\num{303}M} & \multicolumn{3}{c}{\num{36}M} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-Euler steps & evaluations & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ & latency (ms) & R@1$\uparrow$ & FID$\downarrow$ \\
-\midrule
-20 (protocol) & 40 & \num{4083} & \num{0.864} & \num{0.005} & \num{688} & \num{0.840} & \num{0.008} \\
-10 & 20 & \num{2041} & \num{0.863} & \num{0.008} & \num{344} & \num{0.840} & \num{0.013} \\
-5 & 10 & \num{1021} & \num{0.856} & \num{0.013} & \num{172} & \num{0.822} & \num{0.022} \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \section{Metric definitions}\label{app:metrics}
 
