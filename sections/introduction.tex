@@ -61,7 +61,7 @@ world-space root trajectory, with no inverse-kinematics fit.
   (\S\ref{sec:method:model}). The rig's clean rest pose leads the token sequence, and a tree-distance bias
   with learned ancestor tables lets spatial attention tell parent from child and one limb from another.
   Nothing in the network is indexed by rig, so a new rig is a new input; the flat padded-joint construction
-  that fixed-skeleton generators are usually brought to variable skeletons with trails this design by
+  by which fixed-skeleton generators are usually brought to variable skeletons trails this design by
   0.19--0.20 of R@1.
 \item \textbf{High fidelity in the library and zero- and few-shot generalisation outside it}
   (\S\ref{sec:exp:extend}). \method{} reaches R@1 \num{0.867} against \num{0.904} for the real clips and
