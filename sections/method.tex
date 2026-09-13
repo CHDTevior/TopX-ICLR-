@@ -9,9 +9,8 @@ $\mathbf{x}\sim p_\theta(\mathbf{x}\mid\mathcal{R},c)$ with one transformer shar
 (\S\ref{sec:method:model}), trained by a calibrated grouped flow-matching objective
 (\S\ref{sec:method:objective}) and sampled in 20 Euler steps
 (\S\ref{sec:method:sampling}). A rig outside the training library is served by the same
-forward pass and, when a few clips are available, by a per-rig LoRA
-(\S\ref{sec:method:lora}); all retrieval metrics come from a skeleton-aware evaluator
-(\S\ref{sec:method:eval}).
+forward pass and, when a few clips are available, by a per-rig adapter (\S\ref{sec:exp:extend}); retrieval
+metrics come from a skeleton-aware evaluator (\S\ref{sec:exp:setup}).
 
 \subsection{\rep{}: a per-joint representation for any rig}\label{sec:method:rep}
 
@@ -30,7 +29,7 @@ by a rigid per-rig re-alignment to the foot support plane, after which forward k
 unchanged to numerical precision (App.~\ref{app:rep}). Building \rep{} for a new rig needs only its
 kinematic tree, rest pose and animation: there is no template skeleton, no retargeting and no
 inverse-kinematics fitting, and the same channel definition converts every
-Truebones rig used in \S\ref{sec:method:lora}.
+Truebones rig used in \S\ref{sec:exp:extend}.
 
 \paragraph{Per-cell normalisation.} Rigs differ in size, proportion and convention by orders of
 magnitude, so every (rig, joint, channel) cell is standardised with its own mean and standard
@@ -139,31 +138,3 @@ projected back to zero after every step, and guidance is applied to the caption 
 $\hat{\mathbf{x}}_1=\hat{\mathbf{x}}_1^{\varnothing}+s\,(\hat{\mathbf{x}}_1^{c}-\hat{\mathbf{x}}_1^{\varnothing})$
 with guidance scale $s$ (Table~\ref{tab:hparams}). Twenty steps is the operating point used throughout; ten give the same retrieval at half the
 cost, and App.~\ref{app:cost} gives the latency and quality of both.
-
-\subsection{Extending the model to a rig it has never seen}\label{sec:method:lora}
-\paragraph{Zero-training use.} An unseen rig is served by the frozen backbone as soon as its rest
-pose, joint descriptions and per-cell statistics (from its own clips) are supplied; on the Truebones
-rigs this yields motion with far more jitter than the real clips, since wing chains and eight-legged
-gaits are absent from the training library.
-
-\paragraph{Per-rig LoRA.} When roughly ten clips of the new rig exist, we attach rank-$r$
-adapters~\citep{hu2022lora} with scale $\alpha$ (App.~\ref{app:lora}) to the attention projections, the MLPs
-and the conditioning paths (joint-semantics projection, caption MLP, structural MLP, AdaLN), leaving the
-input and output projections and the timestep MLP frozen. The adapters are folded back into the weights at
-export, so the exported model is an ordinary checkpoint. The new rig is converted with the same pipeline as
-the library (joint pruning to deformation bones, captions in the corpus style, an 80/20 split) and the
-adapter is trained with the backbone recipe (App.~\ref{app:lora}); a single adapter shared by a group of rigs
-removes the same jitter excess on all of them, and matches a per-rig adapter on the one rig where both were
-trained (App.~\ref{app:extend_more}).
-
-\subsection{Skeleton-aware evaluation}\label{sec:method:eval}
-\paragraph{Evaluator.} Retrieval metrics require a text--motion embedding, and existing ones are
-tied to one skeleton. We train two towers into a shared embedding space: a frozen DistilBERT text tower
-with a trainable pooling head, and a graph-aware motion tower over the \rep{} channels excluding the
-contact flag, with a symmetric InfoNCE objective (App.~\ref{app:split}). The evaluator sees only real data,
-never generated samples, and shares no weights with the generator.
-
-\paragraph{Protocol.} Text$\to$motion R-precision, matching score and FID are computed in the evaluator
-space and reported next to the evaluator's score on the real clips of the same pools (\S\ref{sec:exp:setup});
-with shuffled captions the evaluator scores at chance (App.~\ref{app:split}). Rigs outside the library, for
-which no evaluator exists, are scored geometrically (\S\ref{sec:exp:setup}).

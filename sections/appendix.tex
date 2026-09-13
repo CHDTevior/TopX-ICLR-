@@ -495,7 +495,7 @@ rig-shard of the validation order, seeds 101--130, the sampler of \S\ref{sec:met
 distance over ten pairs per caption; the pairing is drawn 500 times and averaged, which removes the variance of a
 single draw. Real clips have one sample per caption, so the reference row has no MModality.
 
-\paragraph{Retrieval on the played animation.} The evaluator of \S\ref{sec:method:eval} scores \rep{} channels; the
+\paragraph{Retrieval on the played animation.} The evaluator of \S\ref{sec:exp:setup} scores \rep{} channels; the
 rig plays rotations and a root trajectory. To score what is played, the seed-42 samples of Table~\ref{tab:main}
 were re-scored with their position channels replaced by the forward kinematics of the predicted rotations and
 their velocity channels recomputed from those positions with the codec's own convention, rotations, contact and
@@ -590,8 +590,8 @@ for temporal smoothness, which these three numbers do not measure.
 
 \paragraph{Normalisation of the representation.} \rep{} is normalised per rig and per cell (joint,
 channel) by the cell's mean and standard deviation over the rig's clips (App.~\ref{app:rep}). The
-alternative that keeps every cell's own mean and divides only by a per-rig scale, as in the KTJD
-specification, was trained with the \num{36}M recipe unchanged and scored at matched epochs under the
+alternative that keeps every cell's own mean and divides only by a per-rig scale (a scale-only
+convention) was trained with the \num{36}M recipe unchanged and scored at matched epochs under the
 frozen protocol (its samples are mapped into the per-cell space before scoring). Table~\ref{tab:rep}
 shows that the scale-only variant is behind in retrieval and FID at every matched epoch, by about two
 points of R@1 and \num{22}--\num{30}\% of the FID, although its two output channels agree more closely with each
@@ -855,7 +855,7 @@ to exist at test time, which a rest pose always does. We therefore keep the rest
 
 \section{Validation split and evaluator}\label{app:split}
 
-\paragraph{Evaluator.} The two towers of \S\ref{sec:method:eval} share a 512-d embedding space. The text tower
+\paragraph{Evaluator.} The two towers of \S\ref{sec:exp:setup} share a 512-d embedding space. The text tower
 is a frozen DistilBERT with a trainable pooling head; the motion tower is graph-aware, with 6 graph layers and 4
 temporal layers over the 16 \rep{} channels other than the contact flag; the objective is a symmetric InfoNCE
 over real clips and their captions. As a control, scoring the validation clips against shuffled captions gives
