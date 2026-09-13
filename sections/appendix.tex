@@ -140,7 +140,7 @@ forward-kinematised from the predicted rotations, in de-normalised coordinates (
 over the first 5k steps); a velocity term matching world joint displacements between consecutive
 frames over every valid joint (0.01); a foot-lock term, gated by the de-normalised contact channel,
 that demands zero displacement of a joint flagged in contact (0.01); and an acceleration-matching term
-on the second temporal differences of the normalised channels (1.0), which is what removed the
+on the second temporal differences of the normalised channels (1.0), introduced against the
 residual jitter of early runs.
 
 
@@ -544,7 +544,8 @@ everything else. It is level with the full recipe at all three epochs, within \n
 and its FID is \num{10}\% lower at epoch 100.
 
 The arm \emph{without the calibrated weights} keeps every conditioning pathway and runs the grouped objective
-at uniform weights. It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{61}\% at epoch 100, and
+at uniform weights ($\gamma_g{=}1$ for every group, where the calibrated set anchors the rotation family at 10, so
+the grouped term's weight against the auxiliary terms differs as well). It loses \num{0.036}--\num{0.043} of R@1 and its FID rises by \num{61}\% at epoch 100, and
 it gains less between epochs 50 and 100 than the full recipe does.
 
 The arm that drops \emph{both, and the graph conditioning with them} --- descriptions zeroed, geodesic and

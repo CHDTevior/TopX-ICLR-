@@ -7,7 +7,8 @@
 \num{108} distinct kinematic trees); validation holds \num{3{,}899} clips, \num{5}\% of every rig's
 (App.~\ref{app:split}). Rigs outside the library come from
 the Truebones zoo~\citep{truebones}: \num{986} clips over \num{66} rigs converted to \rep{} with the same
-pipeline (\num{802} captioned), each rig split $80/20$ into train and validation clips.
+pipeline (\num{802} captioned), each rig split $80/20$ into train and validation clips. Per-cell statistics are
+those of all of a rig's clips (App.~\ref{app:rep}); Table~\ref{tab:supportonly} uses the adaptation clips alone.
 
 \paragraph{Models and optimisation.} The main model has $N_b{=}14$ blocks of width $D{=}896$ with $H{=}14$
 heads (\num{302.9}M parameters); the \num{36}M pilot ($N_b{=}8$, $D{=}384$, $H{=}6$) shares every other setting
@@ -22,7 +23,7 @@ length of the real clip (at most $L{=}240$ frames); Table~\ref{tab:main} is the 
 App.~\ref{app:lora}). Retrieval metrics follow \S\ref{sec:method:eval}: text-to-motion R@1/2/3 in
 pools of 64 formed by chunking the dataset order (a retrieved motion is correct if it is the caption's own
 clip), the FID on the evaluator's $\ell_2$-normalised embeddings and the text--motion matching score, each
-next to the evaluator's score on the real clips of the same pools (a reference, not a bound). The evaluator
+next to the evaluator's score on the real clips of the same pools. The evaluator
 scores the sampled channels; re-scored on the played animation (positions and velocities from the forward kinematics
 of the predicted rotations), R@1 moves by $+0.001$ at \num{303}M and $-0.003$ at \num{36}M (App.~\ref{app:metrics}). Geometry is measured in world space on that
 deployable output. The \emph{FK--pose gap} is the mean distance, in the rig's mean bone length, between the
@@ -64,7 +65,7 @@ Real clips (reference) & \num{0.904} & \num{0.991} & \num{0.998} & 0 & \num{0.78
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.76\linewidth]{figures/qualitative.pdf}
+\includegraphics[width=0.72\linewidth]{figures/qualitative.pdf}
 \caption{Seven generated clips of five library rigs on their production meshes. Travelling actions: four to
 five poses at equal distances along the root path, light (first) to dark (last), with the root trajectory on the
 ground. Actions on the spot: four frames at equal times from a fixed camera. Prompts are the clips' own
@@ -113,7 +114,7 @@ Spider (68 j.)  & 26 / 6 & \num{1.896} & \num{0.232} & \num{0.185} & \num{2.87} 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/tb_main.pdf}
+\includegraphics[width=0.82\linewidth]{figures/tb_main.pdf}
 \caption{Four rigs outside the library with their per-rig adapters (Table~\ref{tab:lora}): one held-out clip per rig, nine
 frames spread evenly over the clip, prompt quoted. Each panel draws the sample's two decodings, the directly predicted
 positions (clay) with the forward kinematics of the predicted rotations (teal) over them; a visible separation is a
@@ -171,8 +172,8 @@ matched optimiser steps the \num{36}M, \num{116}M and \num{303}M models reach R@
 \begin{table}[!t]
 \centering\small
 \caption{Geometry of the generated clips against their ground truth (\num{36}M arms at the last epoch of
-Table~\ref{tab:simple}, \num{303}M at the checkpoint of Table~\ref{tab:main}; \num{3{,}899} validation clips; bl = mean
-rest bone length; full table: Table~\ref{tab:physical}). \emph{\rep{} closer}: share of clips on which the \num{36}M
+Table~\ref{tab:simple}, \num{303}M at the checkpoint of Table~\ref{tab:main}; bl = mean rest bone length; full table:
+Table~\ref{tab:physical}). \emph{\rep{} closer}: share of clips on which the \num{36}M
 \rep{} sample is nearer the ground truth than the 13-channel one.}\label{tab:geom}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccccc@{}}
